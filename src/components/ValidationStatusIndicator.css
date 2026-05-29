@@ -1,0 +1,145 @@
+.validation-status-indicator {
+  position: absolute;
+  bottom: 80px;
+  left: 15px;
+  background: white;
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-width: 300px;
+  font-size: 11px;
+  z-index: 98;
+  border-left: 4px solid #ddd;
+}
+
+.validation-status-indicator.error {
+  border-left-color: #FF6B6B;
+  background: #fff5f5;
+}
+
+.validation-status-indicator.warning {
+  border-left-color: #FFA500;
+  background: #fffbf0;
+}
+
+.validation-status-indicator.valid {
+  border-left-color: #4CAF50;
+  background: #f0f8f0;
+}
+
+.validation-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.validation-icon {
+  font-size: 14px;
+}
+
+.validation-text {
+  color: #333;
+  flex: 1;
+}
+
+.validation-area {
+  color: #666;
+  font-size: 10px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.validation-errors {
+  margin-bottom: 8px;
+}
+
+.validation-warnings {
+  margin-bottom: 8px;
+}
+
+.validation-list-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.validation-item {
+  padding: 4px 0;
+  color: #555;
+  line-height: 1.4;
+}
+
+.validation-item.error-item {
+  color: #d32f2f;
+}
+
+.validation-item.warning-item {
+  color: #f57c00;
+}
+
+.validation-success {
+  color: #2e7d32;
+  font-weight: 600;
+  padding: 6px 8px;
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 3px;
+  text-align: center;
+}
+
+/* Animación de entrada */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.validation-status-indicator {
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .validation-status-indicator {
+    max-width: calc(100% - 30px);
+    font-size: 10px;
+  }
+
+  .validation-header {
+    gap: 6px;
+  }
+
+  .validation-area {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .validation-status-indicator {
+    bottom: 70px;
+    left: 8px;
+    right: 8px;
+    max-width: none;
+    padding: 10px;
+    font-size: 9px;
+  }
+
+  .validation-header {
+    font-size: 10px;
+  }
+
+  .validation-item {
+    font-size: 9px;
+  }
+}

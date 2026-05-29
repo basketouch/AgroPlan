@@ -9,25 +9,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-
-    <!-- Google Maps API - Cargado sin Drawing Library (deprecada) -->
-    <script>
-      // Esperar a que Vite cargue las variables de entorno
-      const loadGoogleMaps = async () => {
-        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY_HERE';
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry&language=es`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-      };
-
-      // Cargar cuando el DOM esté listo
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', loadGoogleMaps);
-      } else {
-        loadGoogleMaps();
-      }
-    </script>
   </body>
 </html>

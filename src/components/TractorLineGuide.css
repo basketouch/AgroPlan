@@ -1,0 +1,226 @@
+.tractor-guide-overlay {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 800;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 320px;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tractor-guide-container {
+  padding: 0;
+}
+
+.tractor-guide-header {
+  background: linear-gradient(135deg, #2d5016 0%, #1f3810 100%);
+  color: white;
+  padding: 14px 16px;
+  border-bottom: 1px solid #1a2c0a;
+}
+
+.tractor-guide-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guide-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.tractor-guide-controls {
+  padding: 16px;
+}
+
+.angle-display {
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.angle-display label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.angle-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2d5016;
+  font-variant-numeric: tabular-nums;
+}
+
+.angle-slider-group {
+  margin-bottom: 12px;
+}
+
+.angle-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #2d5016, #4CAF50, #2d5016);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.angle-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #2d5016;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.angle-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.angle-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #2d5016;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.angle-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #999;
+  font-weight: 600;
+}
+
+.preset-angles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.angle-preset {
+  padding: 8px 10px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.angle-preset:hover {
+  background: #e8f5e9;
+  border-color: #2d5016;
+  color: #2d5016;
+}
+
+.angle-preset.active {
+  background: #2d5016;
+  border-color: #2d5016;
+  color: white;
+  box-shadow: 0 2px 6px rgba(45, 80, 22, 0.3);
+}
+
+.guide-info {
+  padding: 10px;
+  background: #f0f8f0;
+  border-radius: 4px;
+  border-left: 3px solid #4CAF50;
+  font-size: 11px;
+  color: #2d5016;
+  line-height: 1.4;
+}
+
+.guide-info p {
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .tractor-guide-overlay {
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+
+  .tractor-guide-header h3 {
+    font-size: 14px;
+  }
+
+  .guide-subtitle {
+    font-size: 11px;
+  }
+
+  .tractor-guide-controls {
+    padding: 12px;
+  }
+
+  .angle-value {
+    font-size: 28px;
+  }
+
+  .preset-angles {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .angle-preset {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+
+  .guide-info {
+    font-size: 10px;
+  }
+}

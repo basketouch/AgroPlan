@@ -10,19 +10,55 @@
   position: relative;
 }
 
-/* Controles de dibujo */
-.drawing-controls {
-  position: absolute;
-  top: 20px;
-  left: 20px;
+/* Barra superior de herramientas - Arrastrable */
+.toolbar-top {
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  padding: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  z-index: 15;
+  max-width: 420px;
+  border-top: 4px solid #2d5016;
+  transition: box-shadow 0.2s;
+}
+
+.toolbar-top:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.toolbar-top-inner {
+  padding: 14px;
+}
+
+.toolbar-section {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  z-index: 10;
+}
+
+.toolbar-section:not(:last-child) {
+  border-bottom: 1px solid #e8e8e8;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.toolbar-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+
+.toolbar-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Controles de dibujo */
+.drawing-controls {
+  display: contents;
 }
 
 .controls-group {
@@ -32,8 +68,8 @@
 }
 
 .control-btn {
-  padding: 8px 12px;
-  background: #f0f0f0;
+  padding: 10px 14px;
+  background: #f5f5f5;
   border: 2px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
@@ -44,8 +80,9 @@
 }
 
 .control-btn:hover {
-  background: #e0e0e0;
+  background: #efefef;
   border-color: #999;
+  transform: translateY(-1px);
 }
 
 .control-btn.active {
@@ -58,10 +95,12 @@
   background: #4CAF50;
   color: white;
   border-color: #4CAF50;
+  font-weight: 700;
 }
 
 .control-btn.finish:hover {
   background: #45a049;
+  border-color: #3d8b40;
 }
 
 .control-btn.clear {
@@ -72,19 +111,147 @@
 
 .control-btn.clear:hover {
   background: #da190b;
+  border-color: #c21807;
 }
 
-/* Status text */
+.control-btn.optimize {
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+  color: white;
+  border-color: #FF9800;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(255, 152, 0, 0.2);
+}
+
+.control-btn.optimize:hover {
+  background: linear-gradient(135deg, #F57C00 0%, #E65100 100%);
+  border-color: #E65100;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+/* Status text - abajo a la izquierda */
 .drawing-status {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  bottom: 20px;
+  left: 15px;
   background: #2d5016;
   color: white;
   padding: 12px 16px;
   border-radius: 4px;
   font-size: 13px;
   font-weight: 600;
-  z-index: 9;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  max-width: 320px;
+  line-height: 1.4;
+}
+
+/* Grid loading indicator */
+.grid-loading-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 24px 32px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2d5016;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.grid-loading-indicator span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .grid-loading-indicator {
+    padding: 16px 24px;
+  }
+
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+  }
+
+  .grid-loading-indicator span {
+    font-size: 12px;
+  }
+}
+
+/* Smooth transitions for grid updates */
+.map-container {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.map-container.regenerating {
+  opacity: 0.8;
+}
+
+/* Obstacle Panel Container */
+.obstacle-panel-container {
+  position: absolute;
+  bottom: 20px;
+  right: 15px;
+  max-width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  z-index: 12;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsiveness for obstacle panel */
+@media (max-width: 480px) {
+  .obstacle-panel-container {
+    max-width: calc(100% - 30px);
+    max-height: 50vh;
+    right: 15px;
+    bottom: 15px;
+  }
 }

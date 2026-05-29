@@ -1,0 +1,225 @@
+.obstacle-panel {
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.obstacle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.obstacle-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.obstacle-count {
+  background: #FF6B6B;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.obstacle-selector {
+  margin-bottom: 12px;
+}
+
+.obstacle-selector label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.obstacle-types-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.obstacle-type-btn {
+  padding: 10px;
+  background: #f5f5f5;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
+}
+
+.obstacle-type-btn:hover {
+  background: #efefef;
+  border-color: #999;
+  transform: translateY(-1px);
+}
+
+.obstacle-type-btn.active {
+  background: #FF6B6B;
+  color: white;
+  border-color: #FF6B6B;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.obstacle-type-btn.drawing {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 16px rgba(255, 107, 107, 0.6);
+  }
+}
+
+.obstacle-icon {
+  font-size: 18px;
+}
+
+.obstacle-label {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.obstacle-hint {
+  background: #fff3cd;
+  border-left: 3px solid #ffc107;
+  padding: 8px 10px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: #856404;
+  font-weight: 500;
+}
+
+.obstacles-list {
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.obstacles-list h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.obstacles-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.obstacle-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.obstacle-item-icon {
+  font-size: 16px;
+}
+
+.obstacle-item-label {
+  flex: 1;
+  color: #333;
+}
+
+.obstacle-delete-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.obstacle-delete-btn:hover {
+  background: #ffe0e0;
+  color: #FF6B6B;
+}
+
+.obstacle-info {
+  background: #e8f5e9;
+  border-left: 3px solid #4CAF50;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #2d5016;
+  line-height: 1.4;
+}
+
+.obstacle-info p {
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .obstacle-panel {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .obstacle-types-grid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .obstacle-type-btn {
+    padding: 8px;
+    font-size: 10px;
+  }
+
+  .obstacle-icon {
+    font-size: 16px;
+  }
+
+  .obstacles-list ul {
+    gap: 4px;
+  }
+
+  .obstacle-item {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+}
