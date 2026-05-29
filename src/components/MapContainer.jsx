@@ -12,6 +12,7 @@ import { useDebounce } from '../hooks/useDebounce'
 import { useScenarioComparator } from '../hooks/useScenarioComparator'
 import { useAutoOptimizer } from '../hooks/useAutoOptimizer'
 import { useDrawingHistory } from '../hooks/useDrawingHistory'
+import { usePolygonMarkerSync } from '../hooks/usePolygonMarkerSync'
 import { createObstacle, OBSTACLE_TYPES } from '../utils/obstacleHelpers'
 import {
   snapToGrid as snapToGridFn,
@@ -60,6 +61,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   const [editorDrawingMode, setEditorDrawingMode] = useState('addPoints') // 'addPoints', 'movePoint', 'insertPoint', 'idle'
   const [selectedPointIndex, setSelectedPointIndex] = useState(null)
   const [draggingPoint, setDraggingPoint] = useState(null)
+  const [hoveredPointIndex, setHoveredPointIndex] = useState(null)
 
   // Polygon validation state
   const [validationStatus, setValidationStatus] = useState(null)
@@ -381,6 +383,36 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
 
     initMap()
   }, [])
+
+  // Sincronizar marcadores con puntos del polígono (especialmente después de undo/redo)
+  const markerSyncHandlers = {
+    onClick: (idx) => setSelectedPointIndex(idx),
+    onRightClick: (idx, latLng) => {
+      // Placeholder para context menu (Phase 4)
+      console.log('Right-click on point', idx)
+    },
+    onMouseEnter: (idx) => setHoveredPointIndex(idx),
+    onMouseLeave: (idx) => setHoveredPointIndex(null),
+    onDragStart: (idx) => {
+      setDraggingPoint(idx)
+      setSelectedPointIndex(idx)
+      setEditorDrawingMode('movePoint')
+    },
+    onDrag: (idx, coords) => {
+      // Live update during drag (visual feedback)
+    },
+    onDragEnd: (idx, coords) => {
+      const updatedPoints = [...polygonPoints]
+      updatedPoints[idx] = snapToGrid ? snapToGridFn(coords, 5) : coords
+      setPolygonPoints(updatedPoints)
+      drawingHistory.setState({ polygonPoints: updatedPoints })
+      setDraggingPoint(null)
+      setEditorDrawingMode('addPoints')
+    }
+  }
+
+  // Call the marker sync hook
+  usePolygonMarkerSync(polygonPoints, selectedPointIndex, draggingPoint, map, markerSyncHandlers)
 
   // Actualizar listener de clicks cuando cambian drawingMode o handlers
   useEffect(() => {
