@@ -9,6 +9,7 @@ import ObstaclePanel from './ObstaclePanel'
 import DrawingToolsPanel from './DrawingToolsPanel'
 import PointContextMenu from './PointContextMenu'
 import PointListPanel from './PointListPanel'
+import DragPreviewTooltip from './DragPreviewTooltip'
 import { calculateAngleFromLine } from '../utils/orientationCalculator'
 import { useDebounce } from '../hooks/useDebounce'
 import { useScenarioComparator } from '../hooks/useScenarioComparator'
@@ -25,6 +26,7 @@ import {
   RemovePointAtIndexCommand
 } from '../utils/drawingCommands'
 import './MapContainer.css'
+import './DragPreviewTooltip.css'
 
 export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid, config, setGrid, setMetricas }) {
   const mapRef = useRef(null)
@@ -75,6 +77,9 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
 
   // Point list panel state
   const [showPointListPanel, setShowPointListPanel] = useState(false)
+
+  // Drag preview state
+  const [dragPreview, setDragPreview] = useState(null)
 
   // Polygon validation state
   const [validationStatus, setValidationStatus] = useState(null)
@@ -420,15 +425,31 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
       setEditorDrawingMode('movePoint')
     },
     onDrag: (idx, coords) => {
-      // Live update during drag (visual feedback)
+      // Live update during drag with visual feedback
+      const originalCoords = polygonPoints[idx]
+      const snappedCoords = snapToGrid ? snapToGridFn(coords, 5) : coords
+
+      // Calculate distance moved
+      const dx = snappedCoords[0] - originalCoords[0]
+      const dy = snappedCoords[1] - originalCoords[1]
+      const distanceMoved = Math.sqrt(dx * dx + dy * dy)
+
+      setDragPreview({
+        pointIndex: idx,
+        originalCoords: originalCoords,
+        currentCoords: snappedCoords,
+        distanceMoved: distanceMoved
+      })
     },
     onDragEnd: (idx, coords) => {
+      const snappedCoords = snapToGrid ? snapToGridFn(coords, 5) : coords
       const updatedPoints = [...polygonPoints]
-      updatedPoints[idx] = snapToGrid ? snapToGridFn(coords, 5) : coords
+      updatedPoints[idx] = snappedCoords
       setPolygonPoints(updatedPoints)
       drawingHistory.setState({ polygonPoints: updatedPoints })
       setDraggingPoint(null)
       setEditorDrawingMode('addPoints')
+      setDragPreview(null)
     }
   }
 
@@ -855,6 +876,9 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         showPointListPanel={showPointListPanel}
         onTogglePointListPanel={() => setShowPointListPanel(!showPointListPanel)}
       />
+
+      {/* Drag Preview Tooltip */}
+      <DragPreviewTooltip dragPreview={dragPreview} />
 
       {/* Status Messages - Bottom Left */}
       {drawingMode === 'polygon' && polygonPoints.length === 0 && (
