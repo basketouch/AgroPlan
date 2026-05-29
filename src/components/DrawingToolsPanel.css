@@ -201,6 +201,26 @@
   background: #ff5252;
 }
 
+.panel-btn.points-btn {
+  background: white;
+  color: #2d5016;
+  border: 1.5px solid #9CCC65;
+  font-weight: 700;
+  grid-column: 1 / -1;
+}
+
+.panel-btn.points-btn:hover:not(:disabled) {
+  background: #f0f7ec;
+  border-color: #7cb342;
+  color: #1b3d0a;
+}
+
+.panel-btn.points-btn.active {
+  background: #9CCC65;
+  color: #1b3d0a;
+  border-color: #7cb342;
+}
+
 .panel-btn.analyze-btn {
   grid-column: 1 / -1;
 }

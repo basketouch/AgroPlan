@@ -43,6 +43,10 @@ export default function DrawingToolsPanel({
 
   // Obstacle types
   OBSTACLE_TYPES,
+
+  // Point List Panel props
+  showPointListPanel,
+  onTogglePointListPanel,
 }) {
   const [expandedSections, setExpandedSections] = useState({
     drawing: true,
@@ -197,6 +201,15 @@ export default function DrawingToolsPanel({
                   title={`Terminar polígono (${polygonPoints.length} puntos)`}
                 >
                   ✓ Terminar ({polygonPoints.length})
+                </button>
+              )}
+              {polygonPoints.length > 0 && (
+                <button
+                  className={`panel-btn points-btn ${showPointListPanel ? 'active' : ''}`}
+                  onClick={onTogglePointListPanel}
+                  title="Ver y editar coordenadas de puntos"
+                >
+                  📋 Puntos ({polygonPoints.length})
                 </button>
               )}
               {(parcela || pozo || polygonPoints.length > 0) && (

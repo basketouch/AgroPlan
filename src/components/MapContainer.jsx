@@ -8,6 +8,7 @@ import OptimizationResultsModal from './OptimizationResultsModal'
 import ObstaclePanel from './ObstaclePanel'
 import DrawingToolsPanel from './DrawingToolsPanel'
 import PointContextMenu from './PointContextMenu'
+import PointListPanel from './PointListPanel'
 import { calculateAngleFromLine } from '../utils/orientationCalculator'
 import { useDebounce } from '../hooks/useDebounce'
 import { useScenarioComparator } from '../hooks/useScenarioComparator'
@@ -71,6 +72,9 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     pointIndex: null,
     pointCoords: null
   })
+
+  // Point list panel state
+  const [showPointListPanel, setShowPointListPanel] = useState(false)
 
   // Polygon validation state
   const [validationStatus, setValidationStatus] = useState(null)
@@ -467,6 +471,12 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     drawingHistory.setState({ polygonPoints: updatedPoints })
   }
 
+  const handleUpdateCoordinate = (idx, newCoords) => {
+    const command = new MovePointCommand(polygonPoints, idx, newCoords)
+    const newState = drawingHistory.executeCommand(command)
+    setPolygonPoints(newState.polygonPoints)
+  }
+
   // Call the marker sync hook
   usePolygonMarkerSync(polygonPoints, selectedPointIndex, draggingPoint, map, markerSyncHandlers)
 
@@ -842,6 +852,8 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         scenarioCalculating={isCalculating}
         optimizationCalculating={isOptimizing}
         OBSTACLE_TYPES={OBSTACLE_TYPES}
+        showPointListPanel={showPointListPanel}
+        onTogglePointListPanel={() => setShowPointListPanel(!showPointListPanel)}
       />
 
       {/* Status Messages - Bottom Left */}
@@ -892,6 +904,19 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         onApplyConfiguration={handleApplyOptimizedConfig}
         onClose={() => setShowOptimizer(false)}
       />
+
+      {/* Point List Panel - Coordinate Editor */}
+      {showPointListPanel && polygonPoints.length > 0 && (
+        <div className="point-list-panel-wrapper">
+          <PointListPanel
+            polygonPoints={polygonPoints}
+            selectedPointIndex={selectedPointIndex}
+            onSelectPoint={setSelectedPointIndex}
+            onUpdateCoordinate={handleUpdateCoordinate}
+            onDeletePoint={handleDeletePoint}
+          />
+        </div>
+      )}
 
       {/* Point Context Menu */}
       <PointContextMenu

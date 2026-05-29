@@ -1,0 +1,386 @@
+.point-list-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: white;
+  border-left: 1px solid #ddd;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%);
+  color: white;
+  border-bottom: 2px solid #1b3d0a;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.point-count {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+}
+
+.panel-info {
+  padding: 8px 12px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+  font-size: 11px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.panel-info small {
+  display: block;
+  color: #999;
+}
+
+.points-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #999;
+  padding: 20px;
+  text-align: center;
+}
+
+.empty-state p {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+.empty-state .hint {
+  font-size: 11px;
+  color: #bbb;
+}
+
+.point-item {
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: white;
+}
+
+.point-item:hover {
+  background: #f5f9f3;
+  border-left: 3px solid #9CCC65;
+}
+
+.point-item.selected {
+  background: #e8f5e9;
+  border-left: 4px solid #2d5016;
+  box-shadow: inset 0 0 4px rgba(45, 80, 22, 0.1);
+}
+
+/* View Mode */
+.point-view-mode {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  min-height: 60px;
+}
+
+.point-number {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%);
+  border-radius: 50%;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.point-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.coordinates {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 4px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.coordinates code {
+  background: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: #2d5016;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.coordinates .comma {
+  color: #999;
+}
+
+.distance {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.distance small {
+  display: inline-block;
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #2d5016;
+  font-weight: 500;
+}
+
+.point-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-delete {
+  background: white;
+  border: 1px solid #ffcdd2;
+  color: #d32f2f;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.btn-delete:hover:not(.disabled) {
+  background: #ffebee;
+  border-color: #ef5350;
+  color: #b71c1c;
+  font-weight: 600;
+}
+
+.btn-delete.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #ddd;
+}
+
+/* Edit Mode */
+.point-edit-mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f0f7ec;
+  border-top: 1px solid #c8e6c9;
+  border-bottom: 1px solid #c8e6c9;
+}
+
+.edit-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.coord-input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #a5d6a7;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  background: white;
+  color: #2d5016;
+  transition: all 0.15s ease;
+}
+
+.coord-input:focus {
+  outline: none;
+  border-color: #2d5016;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(45, 80, 22, 0.1);
+}
+
+.separator {
+  color: #999;
+  font-weight: 600;
+}
+
+.edit-buttons {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.btn-save {
+  background: #4CAF50;
+  color: white;
+  border: 1px solid #388E3C;
+}
+
+.btn-save:hover {
+  background: #45a049;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.btn-save:active {
+  transform: scale(0.95);
+}
+
+.btn-cancel {
+  background: #f5f5f5;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+
+.btn-cancel:hover {
+  background: #ffebee;
+  color: #b71c1c;
+}
+
+.btn-cancel:active {
+  transform: scale(0.95);
+}
+
+.panel-footer {
+  padding: 12px 16px;
+  background: #f9f9f9;
+  border-top: 1px solid #ddd;
+  font-size: 12px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat .label {
+  color: #666;
+  font-weight: 600;
+}
+
+.stat .value {
+  color: #2d5016;
+  font-weight: 700;
+  font-size: 14px;
+  background: #f0f7ec;
+  padding: 2px 6px;
+  border-radius: 3px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Scrollbar styling */
+.points-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.points-list::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.points-list::-webkit-scrollbar-thumb {
+  background: #c8e6c9;
+  border-radius: 3px;
+}
+
+.points-list::-webkit-scrollbar-thumb:hover {
+  background: #9CCC65;
+}
+
+/* Animations */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.point-edit-mode {
+  animation: slideInRight 0.15s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .panel-header {
+    padding: 10px 12px;
+  }
+
+  .panel-header h3 {
+    font-size: 14px;
+  }
+
+  .point-view-mode {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .coordinates {
+    font-size: 11px;
+  }
+
+  .point-number {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}
