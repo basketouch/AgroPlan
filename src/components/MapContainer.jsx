@@ -18,7 +18,8 @@ import {
   generateSmoothCurve,
   findClosestPointOnSegment,
   MovePointCommand,
-  InsertPointCommand
+  InsertPointCommand,
+  RemovePointAtIndexCommand
 } from '../utils/drawingCommands'
 import './MapContainer.css'
 
@@ -558,12 +559,17 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         }
       }
 
-      // Delete: Remove selected point
+      // Delete: Remove selected point (with undo/redo support)
       if (e.key === 'Delete' && selectedPointIndex !== null) {
         e.preventDefault()
-        const newPoints = polygonPoints.filter((_, i) => i !== selectedPointIndex)
-        setPolygonPoints(newPoints)
-        setSelectedPointIndex(null)
+        if (polygonPoints.length > 3) {
+          const command = new RemovePointAtIndexCommand(polygonPoints, selectedPointIndex)
+          const newState = drawingHistory.executeCommand(command)
+          setPolygonPoints(newState.polygonPoints)
+          setSelectedPointIndex(null)
+        } else {
+          alert('❌ Se necesitan al menos 3 puntos para un polígono válido')
+        }
       }
 
       // S: Toggle snap to grid
