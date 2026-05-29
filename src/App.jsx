@@ -23,16 +23,12 @@ export default function App() {
         setParcelas(updated)
         setSelectedParcelaIndex(updated.length > 0 ? Math.max(0, selectedParcelaIndex - 1) : null)
       }
-    } else if (selectedParcelaIndex !== null) {
-      // Actualizar la parcela seleccionada
-      const updated = [...parcelas]
-      updated[selectedParcelaIndex] = newParcela
-      setParcelas(updated)
     } else {
-      // Crear una nueva parcela (cuando no hay ninguna seleccionada)
+      // Siempre crear una nueva parcela (para permitir múltiples)
+      // después de terminar una, el índice se resetea para que la próxima sea nueva
       const updated = [...parcelas, newParcela]
       setParcelas(updated)
-      setSelectedParcelaIndex(updated.length - 1)
+      setSelectedParcelaIndex(null) // Reset para permitir la próxima parcela nueva
     }
   }
 
