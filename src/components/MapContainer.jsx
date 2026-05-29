@@ -28,6 +28,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   const [drawingMode, setDrawingMode] = useState('polygon') // 'polygon', 'marker', 'tractorLine'
   const [polygonPoints, setPolygonPoints] = useState([])
   const [parcelaPolygon, setParcelaPolygon] = useState(null)
+  const [bufferedParcelaPolygon, setBufferedParcelaPolygon] = useState(null) // Visualización del área útil
   const [pozoMarker, setPozoMarker] = useState(null)
   const [gridMarkers, setGridMarkers] = useState([])
   const [polygonLine, setPolygonLine] = useState(null)
@@ -474,6 +475,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   const handleClearDrawing = useCallback(() => {
     // Limpiar polígono
     if (parcelaPolygon) parcelaPolygon.setMap(null)
+    if (bufferedParcelaPolygon) bufferedParcelaPolygon.setMap(null)
     if (polygonLine) polygonLine.setMap(null)
 
     // Limpiar marcador del pozo
@@ -495,6 +497,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
 
     // Resetear todos los estados
     setParcelaPolygon(null)
+    setBufferedParcelaPolygon(null)
     setPolygonLine(null)
     setPozoMarker(null)
     setPolygonPoints([])
@@ -521,7 +524,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     setEditorDrawingMode('addPoints')
     setSelectedPointIndex(null)
     setDraggingPoint(null)
-  }, [parcelaPolygon, polygonLine, pozoMarker, polygonPointMarkers, gridMarkers, tractorLinePolyline, tractorLineMarkers, obstacleMarkers, obstacleCircles, drawingHistory])
+  }, [parcelaPolygon, bufferedParcelaPolygon, polygonLine, pozoMarker, polygonPointMarkers, gridMarkers, tractorLinePolyline, tractorLineMarkers, obstacleMarkers, obstacleCircles, drawingHistory])
 
 
   // Aplicar configuración optimizada (nota: necesita ser pasada desde ControlPanel)
@@ -628,7 +631,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
 
   // Regenerar grid cuando cambian parcela/pozo/config/orientationAngle/obstacles (debounced para performance)
   useEffect(() => {
-    if (parcela && pozo && debouncedConfig) {
+    if (parcela && pozo && debouncedConfig && map) {
       setIsRegeneratingGrid(true)
       try {
         const configWithOrientation = {
@@ -638,13 +641,31 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         const result = generatePlantingGrid(parcela, pozo, configWithOrientation, obstacles)
         setGrid(result.points)
         setMetricas(result.metricas)
+
+        // ✨ Visualizar el área buffered (área útil de plantación)
+        if (result.bufferedParcelaCoords) {
+          // Limpiar polígono anterior
+          if (bufferedParcelaPolygon) bufferedParcelaPolygon.setMap(null)
+
+          // Crear nuevo polígono para el área buffered
+          const bufferedPolygon = new window.google.maps.Polygon({
+            paths: result.bufferedParcelaCoords.map(p => ({ lng: p[0], lat: p[1] })),
+            strokeColor: '#558B2F',
+            strokeOpacity: 0.6,
+            strokeWeight: 2,
+            fillColor: '#9CCC65',
+            fillOpacity: 0.15,
+            map: map,
+          })
+          setBufferedParcelaPolygon(bufferedPolygon)
+        }
       } catch (error) {
         console.error('Error generando grid:', error)
       } finally {
         setIsRegeneratingGrid(false)
       }
     }
-  }, [parcela, pozo, debouncedConfig, orientationAngle, obstacles])
+  }, [parcela, pozo, debouncedConfig, orientationAngle, obstacles, map, bufferedParcelaPolygon])
 
   return (
     <div className="map-container-wrapper">

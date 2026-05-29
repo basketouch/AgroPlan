@@ -229,6 +229,7 @@ function generatePlantingGridBase(parcelaCoords, pozoCord, config) {
 
     return {
       points: pointsConCultivo,
+      bufferedParcelaCoords: bufferedParcela.geometry.coordinates[0], // Área útil de plantación
       metricas: {
         areaTotalHa: areaTotalHa,
         areaValidaHa: areaValidaHa,
