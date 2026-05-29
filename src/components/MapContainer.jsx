@@ -7,6 +7,7 @@ import ScenarioComparatorModal from './ScenarioComparatorModal'
 import OptimizationResultsModal from './OptimizationResultsModal'
 import ObstaclePanel from './ObstaclePanel'
 import DrawingToolsPanel from './DrawingToolsPanel'
+import PointContextMenu from './PointContextMenu'
 import { calculateAngleFromLine } from '../utils/orientationCalculator'
 import { useDebounce } from '../hooks/useDebounce'
 import { useScenarioComparator } from '../hooks/useScenarioComparator'
@@ -62,6 +63,14 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   const [selectedPointIndex, setSelectedPointIndex] = useState(null)
   const [draggingPoint, setDraggingPoint] = useState(null)
   const [hoveredPointIndex, setHoveredPointIndex] = useState(null)
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState({
+    isOpen: false,
+    position: null,
+    pointIndex: null,
+    pointCoords: null
+  })
 
   // Polygon validation state
   const [validationStatus, setValidationStatus] = useState(null)
@@ -387,9 +396,17 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   // Sincronizar marcadores con puntos del polígono (especialmente después de undo/redo)
   const markerSyncHandlers = {
     onClick: (idx) => setSelectedPointIndex(idx),
-    onRightClick: (idx, latLng) => {
-      // Placeholder para context menu (Phase 4)
-      console.log('Right-click on point', idx)
+    onRightClick: (idx, event) => {
+      const domEvent = event.domEvent || event
+      setContextMenu({
+        isOpen: true,
+        position: {
+          x: domEvent.clientX,
+          y: domEvent.clientY
+        },
+        pointIndex: idx,
+        pointCoords: polygonPoints[idx]
+      })
     },
     onMouseEnter: (idx) => setHoveredPointIndex(idx),
     onMouseLeave: (idx) => setHoveredPointIndex(null),
@@ -409,6 +426,45 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
       setDraggingPoint(null)
       setEditorDrawingMode('addPoints')
     }
+  }
+
+  // Handlers para context menu operations
+  const handleDeletePoint = (idx) => {
+    if (polygonPoints.length > 3) {
+      const command = new RemovePointAtIndexCommand(polygonPoints, idx)
+      const newState = drawingHistory.executeCommand(command)
+      setPolygonPoints(newState.polygonPoints)
+      setSelectedPointIndex(null)
+    }
+  }
+
+  const handleEditPoint = (idx) => {
+    // Placeholder para Phase 5 (Coordinate Editor Panel)
+    setSelectedPointIndex(idx)
+  }
+
+  const handleInsertBefore = (idx) => {
+    // Insertar nuevo punto antes del actual
+    const newPoint = [
+      polygonPoints[idx][0],
+      polygonPoints[idx][1]
+    ]
+    const updatedPoints = [...polygonPoints]
+    updatedPoints.splice(idx, 0, newPoint)
+    setPolygonPoints(updatedPoints)
+    drawingHistory.setState({ polygonPoints: updatedPoints })
+  }
+
+  const handleInsertAfter = (idx) => {
+    // Insertar nuevo punto después del actual
+    const newPoint = [
+      polygonPoints[idx][0],
+      polygonPoints[idx][1]
+    ]
+    const updatedPoints = [...polygonPoints]
+    updatedPoints.splice(idx + 1, 0, newPoint)
+    setPolygonPoints(updatedPoints)
+    drawingHistory.setState({ polygonPoints: updatedPoints })
   }
 
   // Call the marker sync hook
@@ -835,6 +891,21 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         isCalculating={isOptimizing}
         onApplyConfiguration={handleApplyOptimizedConfig}
         onClose={() => setShowOptimizer(false)}
+      />
+
+      {/* Point Context Menu */}
+      <PointContextMenu
+        isOpen={contextMenu.isOpen}
+        position={contextMenu.position}
+        pointIndex={contextMenu.pointIndex}
+        pointCoords={contextMenu.pointCoords}
+        totalPoints={polygonPoints.length}
+        onDelete={handleDeletePoint}
+        onEdit={handleEditPoint}
+        onInsertBefore={handleInsertBefore}
+        onInsertAfter={handleInsertAfter}
+        onCopyCoords={() => {}}
+        onClose={() => setContextMenu({ ...contextMenu, isOpen: false })}
       />
     </div>
   )

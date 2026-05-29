@@ -49,7 +49,7 @@ export function usePolygonMarkerSync(
       marker.addListener('rightclick', (event) => {
         event.domEvent.preventDefault()
         if (handlers.onRightClick) {
-          handlers.onRightClick(idx, event.latLng)
+          handlers.onRightClick(idx, event)
         }
       })
 
