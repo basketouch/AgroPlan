@@ -17,18 +17,23 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <ControlPanel
+        config={config}
+        setConfig={setConfig}
+        parcela={parcela}
+        pozo={pozo}
+        grid={grid}
+        metricas={metricas}
+      />
       <MapContainer
         parcela={parcela}
         setParcela={setParcela}
         pozo={pozo}
         setPozo={setPozo}
         grid={grid}
-      />
-      <ControlPanel
         config={config}
-        setConfig={setConfig}
-        parcela={parcela}
-        pozo={pozo}
+        setGrid={setGrid}
+        setMetricas={setMetricas}
       />
       {metricas && <MetricsPanel metricas={metricas} />}
     </div>
