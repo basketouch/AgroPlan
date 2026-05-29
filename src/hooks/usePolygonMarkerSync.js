@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { getMarkerIcon, getMarkerLabel } from '../utils/markerIconFactory'
 
 /**
  * Hook to synchronize polygon points with map markers
@@ -28,7 +29,7 @@ export function usePolygonMarkerSync(
       const isDragging = idx === draggingPoint
 
       // Determine marker appearance based on state
-      const markerIcon = getMarkerIcon(isSelected, isDragging)
+      const markerIcon = getMarkerIcon(isSelected, isDragging, false)
 
       const marker = new window.google.maps.Marker({
         position: { lat: point[1], lng: point[0] },
@@ -36,12 +37,7 @@ export function usePolygonMarkerSync(
         title: `Punto ${idx + 1}`,
         icon: markerIcon,
         draggable: true,
-        label: {
-          text: String(idx + 1),
-          color: isSelected ? '#000' : '#fff',
-          fontSize: '12px',
-          fontWeight: 'bold'
-        }
+        label: getMarkerLabel(idx, isSelected)
       })
 
       // Click: Select point
@@ -96,56 +92,4 @@ export function usePolygonMarkerSync(
   }, [polygonPoints, selectedPointIndex, draggingPoint, map, handlers])
 
   return window.currentPolygonMarkers || []
-}
-
-/**
- * Get marker icon based on point state
- * Different colors/sizes for selected, dragging, hovered states
- */
-function getMarkerIcon(isSelected, isDragging) {
-  if (isDragging) {
-    return {
-      path: window.google.maps.SymbolPath.CIRCLE,
-      scale: 12,
-      fillColor: '#ff6b6b',
-      fillOpacity: 1,
-      strokeColor: '#fff',
-      strokeWeight: 3,
-    }
-  }
-
-  if (isSelected) {
-    return {
-      path: window.google.maps.SymbolPath.CIRCLE,
-      scale: 10,
-      fillColor: '#ffc107',
-      fillOpacity: 1,
-      strokeColor: '#fff',
-      strokeWeight: 3,
-    }
-  }
-
-  // Default state
-  return {
-    path: window.google.maps.SymbolPath.CIRCLE,
-    scale: 6,
-    fillColor: '#2d5016',
-    fillOpacity: 1,
-    strokeColor: '#fff',
-    strokeWeight: 2,
-  }
-}
-
-/**
- * Get marker icon for hovered state
- */
-export function getHoveredMarkerIcon() {
-  return {
-    path: window.google.maps.SymbolPath.CIRCLE,
-    scale: 8,
-    fillColor: '#4CAF50',
-    fillOpacity: 1,
-    strokeColor: '#fff',
-    strokeWeight: 2,
-  }
 }
