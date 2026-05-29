@@ -9,5 +9,15 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Google Maps API - Se carga aquí con tu API key -->
+    <script>
+      // Tu API key debe estar en .env.local
+      // El servidor Vite la inyectará automáticamente
+      window.VITE_GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY_HERE';
+    </script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=drawing,geometry&language=es">
+    </script>
   </body>
 </html>
