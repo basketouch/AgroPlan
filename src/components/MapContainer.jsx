@@ -34,7 +34,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   const [drawingMode, setDrawingMode] = useState('polygon') // 'polygon', 'marker', 'tractorLine'
   const [polygonPoints, setPolygonPoints] = useState([])
   const [parcelaPolygon, setParcelaPolygon] = useState(null)
-  const [bufferedParcelaPolygon, setBufferedParcelaPolygon] = useState(null) // Visualización del área útil
+  const bufferedParcelaPolygon = useRef(null) // Visualización del área útil (useRef para evitar loop infinito)
   const [pozoMarker, setPozoMarker] = useState(null)
   const [gridMarkers, setGridMarkers] = useState([])
   const [polygonLine, setPolygonLine] = useState(null)
@@ -595,7 +595,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   const handleClearDrawing = useCallback(() => {
     // Limpiar polígono
     if (parcelaPolygon) parcelaPolygon.setMap(null)
-    if (bufferedParcelaPolygon) bufferedParcelaPolygon.setMap(null)
+    if (bufferedParcelaPolygon.current) bufferedParcelaPolygon.current.setMap(null)
     if (polygonLine) polygonLine.setMap(null)
 
     // Limpiar marcador del pozo
@@ -617,7 +617,8 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
 
     // Resetear todos los estados
     setParcelaPolygon(null)
-    setBufferedParcelaPolygon(null)
+    if (bufferedParcelaPolygon.current) bufferedParcelaPolygon.current.setMap(null)
+    bufferedParcelaPolygon.current = null
     setPolygonLine(null)
     setPozoMarker(null)
     setPolygonPoints([])
@@ -644,7 +645,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     setEditorDrawingMode('addPoints')
     setSelectedPointIndex(null)
     setDraggingPoint(null)
-  }, [parcelaPolygon, bufferedParcelaPolygon, polygonLine, pozoMarker, polygonPointMarkers, gridMarkers, tractorLinePolyline, tractorLineMarkers, obstacleMarkers, obstacleCircles, drawingHistory])
+  }, [parcelaPolygon, polygonLine, pozoMarker, polygonPointMarkers, gridMarkers, tractorLinePolyline, tractorLineMarkers, obstacleMarkers, obstacleCircles, drawingHistory])
 
 
   // Aplicar configuración optimizada (nota: necesita ser pasada desde ControlPanel)
@@ -770,7 +771,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         // ✨ Visualizar el área buffered (área útil de plantación)
         if (result.bufferedParcelaCoords) {
           // Limpiar polígono anterior
-          if (bufferedParcelaPolygon) bufferedParcelaPolygon.setMap(null)
+          if (bufferedParcelaPolygon.current) bufferedParcelaPolygon.current.setMap(null)
 
           // Crear nuevo polígono para el área buffered
           const bufferedPolygon = new window.google.maps.Polygon({
@@ -782,7 +783,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
             fillOpacity: 0.15,
             map: map,
           })
-          setBufferedParcelaPolygon(bufferedPolygon)
+          bufferedParcelaPolygon.current = bufferedPolygon
         }
       } catch (error) {
         console.error('Error generando grid:', error)
@@ -790,7 +791,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         setIsRegeneratingGrid(false)
       }
     }
-  }, [parcela, pozo, debouncedConfig, orientationAngle, obstacles, map, bufferedParcelaPolygon])
+  }, [parcela, pozo, debouncedConfig, orientationAngle, obstacles, map])
 
   return (
     <div className="map-container-wrapper">
