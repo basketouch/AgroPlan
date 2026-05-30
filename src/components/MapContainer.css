@@ -258,12 +258,12 @@
 
 /* Point List Panel Container */
 .point-list-panel-wrapper {
-  position: absolute;
-  top: 15px;
+  position: fixed;
+  bottom: 15px;
   right: 15px;
   width: 320px;
-  max-height: 70vh;
-  z-index: 11;
+  max-height: 45vh;
+  z-index: 12;
   animation: slideInRight 0.3s ease-out;
   border-radius: 6px;
   overflow: hidden;
