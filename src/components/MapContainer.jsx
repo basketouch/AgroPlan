@@ -87,10 +87,18 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   // Debounce config to prevent excessive grid recalculations
   const debouncedConfig = useDebounce(config, 300)
 
-  // Sync tractorLineActive with drawing mode
+  // Sync tractorLineActive with drawing mode and cleanup tractor lines when switching modes
   useEffect(() => {
     setTractorLineActive(drawingMode === 'tractorLine')
-  }, [drawingMode])
+
+    // Limpiar líneas del tractor cuando se cambia a otro modo
+    if (drawingMode !== 'tractorLine') {
+      if (tractorLinePolyline) tractorLinePolyline.setMap(null)
+      tractorLineMarkers.forEach(marker => marker.setMap(null))
+      setTractorLinePoints(null)
+      setTractorLineMarkers([])
+    }
+  }, [drawingMode, tractorLinePolyline, tractorLineMarkers])
 
   // Manejar clicks para polígono con soporte para insert mode y snap-to-grid
   const handlePolygonClick = useCallback((latLng, googleMap) => {
