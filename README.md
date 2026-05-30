@@ -1,4 +1,4 @@
-# AgroFit - Generador de Layouts Agrícolas
+# AgroPlan - Generador de Layouts Agrícolas
 
 Una plataforma web interactiva para diseñar y optimizar distribuciones de cultivos. Dibuja tu parcela, marca el pozo, y obtén al instante la retícula de plantación óptima con cálculos de densidad y materiales.
 
