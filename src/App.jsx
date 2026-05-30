@@ -34,9 +34,9 @@ export default function App() {
 
   const [pozo, setPozo] = useState(null)
   const [config, setConfig] = useState({
-    marcoHorizontal: 700,
-    marcoVertical: 700,
-    retranqueo: 500,
+    marcoHorizontal: 70,
+    marcoVertical: 70,
+    retranqueo: 50,
     tipoRiego: 'goteo',
     cultivosSeleccionados: [],
     modoPlantacion: 'espaciamiento', // 'espaciamiento' | 'cantidad-fija'
