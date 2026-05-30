@@ -98,7 +98,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
       setTractorLinePoints(null)
       setTractorLineMarkers([])
     }
-  }, [drawingMode, tractorLinePolyline, tractorLineMarkers])
+  }, [drawingMode])
 
   // Manejar clicks para polígono con soporte para insert mode y snap-to-grid
   const handlePolygonClick = useCallback((latLng, googleMap) => {
