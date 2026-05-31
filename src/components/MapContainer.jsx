@@ -204,7 +204,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
       })
       setPolygonLine(polyline)
     }
-  }, [polygonPoints, polygonLine, snapToGrid, editorDrawingMode, smoothCurves, drawingHistory])
+  }, [polygonPoints, polygonLine, snapToGrid, editorDrawingMode, smoothCurves])
 
   // Manejar clicks para marcador (pozo)
   const handleMarkerClick = useCallback((latLng, googleMap) => {
@@ -228,7 +228,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     setPozoMarker(marker)
     setPozo([latLng.lng(), latLng.lat()])
     setDrawingMode('polygon') // Volver a modo polígono
-  }, [pozoMarker])
+  }, [])
 
   // Manejar clicks para marcar obstáculos
   const handleObstacleClick = useCallback((latLng, googleMap) => {
@@ -385,7 +385,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
       const angle = calculateAngleFromLine(newPoints[0], newPoints[1])
       setOrientationAngle(angle)
     }
-  }, [tractorLinePoints, tractorLinePolyline, tractorLineMarkers])
+  }, [])
 
   // Inicializar Google Map
   useEffect(() => {
