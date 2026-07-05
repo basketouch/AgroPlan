@@ -1,4 +1,4 @@
-# AgroFit MVP — Status Report
+# AgroPlan MVP — Status Report
 
 **Generated**: May 28, 2026  
 **Time to First Deploy**: ~4-5 hours (if you follow NEXT_STEPS.md)
@@ -8,7 +8,7 @@
 ## ✅ Completed
 
 ### Project Setup
-- [x] Directory initialized at `/Users/jorgelorenzo/Desktop/AgroFit`
+- [x] Directory initialized at `/Users/jorgelorenzo/Desktop/AgroPlan`
 - [x] Git repository created with clean initial commit
 - [x] `package.json` with dependencies (React, Vite, Turf.js, Google Maps API wrapper)
 - [x] Vite dev server config + HMR enabled
@@ -101,7 +101,7 @@ What needs to happen:
 
 ### First Dev Session
 ```bash
-cd /Users/jorgelorenzo/Desktop/AgroFit
+cd /Users/jorgelorenzo/Desktop/AgroPlan
 npm run dev  # Opens http://localhost:3000
 ```
 

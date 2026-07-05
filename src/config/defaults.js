@@ -1,5 +1,5 @@
 /**
- * Valores por defecto centralizados de AgroFit
+ * Valores por defecto centralizados de AgroPlan
  * Punto único de verdad para configuración inicial de la app
  */
 

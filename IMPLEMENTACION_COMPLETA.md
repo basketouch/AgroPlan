@@ -1,4 +1,4 @@
-# ✅ AgroFit MVP - Implementación Completa
+# ✅ AgroPlan MVP - Implementación Completa
 
 **Fecha**: 28 de Mayo, 2026  
 **Estado**: 🎉 **LISTO PARA USAR** (requiere Google Maps API key)
@@ -52,7 +52,7 @@
 ### Paso 1: Obtén API Key de Google (5 min)
 ```
 1. Ve a: https://console.cloud.google.com/
-2. Crea proyecto "AgroFit"
+2. Crea proyecto "AgroPlan"
 3. Habilita estas APIs:
    - Maps JavaScript API
    - Maps Drawing Library
@@ -64,7 +64,7 @@
 ### Paso 2: Configura tu .env.local
 ```bash
 # Abre este archivo:
-/Users/jorgelorenzo/Desktop/AgroFit/.env.local
+/Users/jorgelorenzo/Desktop/AgroPlan/.env.local
 
 # Reemplaza:
 VITE_GOOGLE_MAPS_API_KEY=YOUR_API_KEY_HERE
@@ -75,7 +75,7 @@ VITE_GOOGLE_MAPS_API_KEY=AIzaSy...tuClavAqui...
 
 ### Paso 3: Inicia la app
 ```bash
-cd /Users/jorgelorenzo/Desktop/AgroFit
+cd /Users/jorgelorenzo/Desktop/AgroPlan
 npm install
 npm run dev
 ```
@@ -127,7 +127,7 @@ npm run dev
 ## 🔧 Estructura Final
 
 ```
-AgroFit/
+AgroPlan/
 ├── .env.local                    ← Tu API key aquí
 ├── .env.example                  ← Template
 ├── package.json                  ← npm dependencies
@@ -214,7 +214,7 @@ Después de dibuja parcela + marca pozo, automáticamente:
 
 ---
 
-**🎉 ¡AgroFit MVP está 100% funcional!**
+**🎉 ¡AgroPlan MVP está 100% funcional!**
 
 Solo necesitas la Google Maps API key y `npm run dev`.
 

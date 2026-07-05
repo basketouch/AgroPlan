@@ -1,5 +1,5 @@
 /**
- * Utilities para manejar obstáculos/elementos de bloqueo en AgroFit
+ * Utilities para manejar obstáculos/elementos de bloqueo en AgroPlan
  */
 
 // Definición de tipos de obstáculos con propiedades

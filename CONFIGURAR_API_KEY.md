@@ -12,7 +12,7 @@ pero el mapa no funciona hasta que agregues tu API key.
 1. Ve a https://console.cloud.google.com/
 2. Haz clic en el selector de proyecto (arriba izquierda)
 3. Haz clic en "+ NUEVO PROYECTO"
-4. Nombre: `AgroFit` → Crear
+4. Nombre: `AgroPlan` → Crear
 5. Espera 1 minuto a que se cree
 6. En el buscador superior, escribe: `Maps JavaScript API`
 7. Haz clic en el resultado
@@ -28,7 +28,7 @@ pero el mapa no funciona hasta que agregues tu API key.
 ### Opción B: Si YA tienes Google Cloud Console
 
 1. Ve a https://console.cloud.google.com/
-2. Selecciona tu proyecto "AgroFit"
+2. Selecciona tu proyecto "AgroPlan"
 3. Menú izquierdo → "Credenciales"
 4. Busca tu API Key (o crea una nueva si no la encuentras)
 5. Cópiala
@@ -39,7 +39,7 @@ pero el mapa no funciona hasta que agregues tu API key.
 
 1. Abre este archivo en tu editor:
    ```
-   /Users/jorgelorenzo/Desktop/AgroFit/.env.local
+   /Users/jorgelorenzo/Desktop/AgroPlan/.env.local
    ```
 
 2. Verás:

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**AgroFit** is an interactive map-based platform for generating optimal agricultural layout distributions. Users draw a parcel boundary, mark water infrastructure (well), and the system instantly generates a planting grid with density calculations and material estimates.
+**AgroPlan** is an interactive map-based platform for generating optimal agricultural layout distributions. Users draw a parcel boundary, mark water infrastructure (well), and the system instantly generates a planting grid with density calculations and material estimates.
 
 **MVP Scope**: Instant geometric layout generation without 3D topography.
 

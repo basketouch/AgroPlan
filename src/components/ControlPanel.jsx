@@ -155,7 +155,7 @@ export default function ControlPanel({
 
   return (
     <div className="control-panel">
-      <h1>🌱 AgroFit</h1>
+      <h1>🌱 AgroPlan</h1>
 
       <section className="search-section">
         <label>Buscar municipio o coordenada</label>

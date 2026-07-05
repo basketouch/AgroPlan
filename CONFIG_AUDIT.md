@@ -1,4 +1,4 @@
-# 📋 Auditoría de Configuraciones - AgroFit
+# 📋 Auditoría de Configuraciones - AgroPlan
 
 ## 1. VARIABLES DE AMBIENTE (.env)
 ```

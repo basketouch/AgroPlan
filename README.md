@@ -14,7 +14,7 @@ Una plataforma web interactiva para diseñar y optimizar distribuciones de culti
 ## Instalación Rápida
 
 ```bash
-cd /Users/jorgelorenzo/Desktop/AgroFit
+cd /Users/jorgelorenzo/Desktop/AgroPlan
 npm install
 npm run dev
 ```

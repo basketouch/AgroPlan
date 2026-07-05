@@ -1,4 +1,4 @@
-# 🚀 Setup Rápido - AgroFit MVP
+# 🚀 Setup Rápido - AgroPlan MVP
 
 ## Paso 1: Obtener Google Maps API Key (5 min)
 
@@ -6,7 +6,7 @@
 2. **Crea un proyecto nuevo** (si no lo has hecho):
    - Click en "Selecciona un proyecto" (arriba izquierda)
    - Click en "Nuevo proyecto"
-   - Nombre: "AgroFit"
+   - Nombre: "AgroPlan"
    - Click en "Crear"
 
 3. **Habilita APIs necesarias**:
@@ -26,7 +26,7 @@
 
 ```bash
 # 1. Navega a la carpeta
-cd /Users/jorgelorenzo/Desktop/AgroFit
+cd /Users/jorgelorenzo/Desktop/AgroPlan
 
 # 2. Abre el archivo .env.local (ya existe)
 # Reemplaza: YOUR_API_KEY_HERE
@@ -120,4 +120,4 @@ Si algo no funciona:
 
 ---
 
-**¡Listo!** AgroFit está completo. Disfruta el "wow moment" al generar tu primer layout. 🌱
+**¡Listo!** AgroPlan está completo. Disfruta el "wow moment" al generar tu primer layout. 🌱

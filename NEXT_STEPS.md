@@ -1,4 +1,4 @@
-# Próximos Pasos - AgroFit MVP
+# Próximos Pasos - AgroPlan MVP
 
 ## 🎯 Estado Actual
 

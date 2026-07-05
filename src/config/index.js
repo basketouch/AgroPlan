@@ -1,5 +1,5 @@
 /**
- * Punto de entrada centralizado de configuración de AgroFit
+ * Punto de entrada centralizado de configuración de AgroPlan
  * Re-exporta constantes dispersas en utils/ junto a los nuevos defaults
  * para que el resto de la app importe todo desde 'src/config'
  */

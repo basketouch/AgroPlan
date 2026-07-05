@@ -3,7 +3,7 @@ import { rotatePoint, calculatePolygonCenter } from './orientationCalculator'
 import { filterPointsByObstacles, calculateObstacleImpact } from './obstacleHelpers'
 
 /**
- * Algoritmo generativo principal para AgroFit
+ * Algoritmo generativo principal para AgroPlan
  * Entrada: polígono de parcela, punto de pozo, configuración de marco
  * Salida: array de puntos de plantación (grid), métricas
  */
