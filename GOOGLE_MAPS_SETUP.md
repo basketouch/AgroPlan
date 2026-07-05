@@ -15,7 +15,7 @@
 4. Añade una nueva variable:
    ```
    Name:  VITE_GOOGLE_MAPS_API_KEY
-   Value: AIzaSyBx6IbZfGeo85krBKl8DNSTcqH1bRE9GLk
+   Value: <tu API key de Google Maps (cópiala de .env.local)>
    ```
 5. Selecciona **Production** (o Production + Preview si quieres probar antes)
 6. Click **Save**
@@ -93,7 +93,7 @@ Si Google Maps aún no carga en Vercel:
 Si quieres que funcione sin Vercel Environment Variables:
 ```
 .env.production.local
-VITE_GOOGLE_MAPS_API_KEY=AIzaSyBx6IbZfGeo85krBKl8DNSTcqH1bRE9GLk
+VITE_GOOGLE_MAPS_API_KEY=<tu_api_key>
 ```
 
 **Pero NUNCA pushees esto a GitHub.** Añade a `.gitignore`:
