@@ -32,7 +32,7 @@ import { DEFAULT_MAP_CONFIG, DEFAULT_DRAWING_CONFIG, OBSTACLE_TYPES, createObsta
 import './MapContainer.css'
 import './DragPreviewTooltip.css'
 
-export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid, config, setGrid, metricas, setMetricas, searchLocation, portalTarget, preferences }) {
+export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid, config, setGrid, metricas, setMetricas, searchLocation, portalTarget, preferences, regenerateSignal }) {
   // Preferencias de usuario (Ajustes) con fallback a los defaults
   const snapGridSize = preferences?.snapGridSizeMeters ?? DEFAULT_DRAWING_CONFIG.snapGridSizeMeters
   const searchZoom = preferences?.searchZoom ?? DEFAULT_MAP_CONFIG.searchZoom
@@ -838,7 +838,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         setIsRegeneratingGrid(false)
       }
     }
-  }, [parcela, pozo, debouncedConfig, orientationAngle, obstacles, map])
+  }, [parcela, pozo, debouncedConfig, orientationAngle, obstacles, map, regenerateSignal])
 
   return (
     <div className="map-container-wrapper">

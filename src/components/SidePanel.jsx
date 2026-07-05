@@ -7,7 +7,7 @@ import './SidePanel.css'
 export default function SidePanel({
   config, setConfig, parcela, setParcela, pozo, grid, metricas, displayUnit, setDisplayUnit,
   parcelas, selectedParcelaIndex, onSelectParcela, onSearchLocation, parcelaTabSlotRef,
-  preferences, onSavePreferences
+  preferences, onSavePreferences, onGenerateLayout
 }) {
   const [activeTab, setActiveTab] = useState('parcela')
   const [busqueda, setBusqueda] = useState('')
@@ -222,9 +222,10 @@ export default function SidePanel({
               <button
                 className={`btn-primary ${!parcela || !pozo ? 'disabled' : ''}`}
                 disabled={!parcela || !pozo}
-                title={!parcela || !pozo ? 'Dibuja parcela y marca pozo primero' : 'Generar layout'}
+                onClick={onGenerateLayout}
+                title={!parcela || !pozo ? 'Dibuja parcela y marca pozo primero' : 'Recalcular el layout con la configuración actual'}
               >
-                ✨ Generar Layout
+                {grid.length > 0 ? '🔄 Regenerar Layout' : '✨ Generar Layout'}
               </button>
               <button className="btn-secondary" onClick={downloadScreenshot}>
                 📥 Descargar PNG

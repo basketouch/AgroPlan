@@ -56,6 +56,10 @@ export default function App() {
     setDisplayUnit(newPrefs.displayUnit)
   }
 
+  // Señal para forzar la regeneración del grid desde el botón "Generar Layout"
+  // (el grid ya se regenera solo al cambiar config; esto cubre el recálculo manual)
+  const [regenerateSignal, setRegenerateSignal] = useState(0)
+
   // Nodo DOM del slot de la pestaña "Parcela", donde MapContainer porta DrawingToolsPanel.
   // Se usa un callback ref (en vez de useRef) para forzar un re-render en cuanto el nodo se monta.
   const [parcelaTabSlotNode, setParcelaTabSlotNode] = useState(null)
@@ -104,6 +108,7 @@ export default function App() {
             parcelaTabSlotRef={parcelaTabSlotRef}
             preferences={preferences}
             onSavePreferences={handleSavePreferences}
+            onGenerateLayout={() => setRegenerateSignal(s => s + 1)}
           />
         )}
         {panelVisible && (
@@ -133,6 +138,7 @@ export default function App() {
           searchLocation={searchLocation}
           portalTarget={parcelaTabSlotNode}
           preferences={preferences}
+          regenerateSignal={regenerateSignal}
         />
       </div>
     </div>
