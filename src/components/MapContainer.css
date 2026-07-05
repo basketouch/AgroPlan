@@ -289,3 +289,39 @@
     right: 15px;
   }
 }
+
+/* Botón de toggle 3D en el mapa (vive aquí porque View3D.css carga en diferido) */
+.view3d-toggle-btn {
+  position: absolute;
+  bottom: 80px;
+  left: 15px;
+  z-index: 10;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #2d5016 0%, #4a7c2f 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.view3d-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.view3d-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11, 26, 11, 0.9);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}

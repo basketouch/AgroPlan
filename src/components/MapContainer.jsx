@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { useRef, useEffect, useState, useCallback, lazy, Suspense } from 'react'
 import { createPortal } from 'react-dom'
 import { generatePlantingGrid, isPointInPolygon } from '../utils/geometry'
 import { getCropColor } from '../utils/cropColors'
@@ -11,6 +11,8 @@ import DrawingToolsPanel from './DrawingToolsPanel'
 import PointContextMenu from './PointContextMenu'
 import PointListPanel from './PointListPanel'
 import DragPreviewTooltip from './DragPreviewTooltip'
+// Lazy: three.js solo se descarga al abrir la vista 3D
+const View3D = lazy(() => import('./View3D'))
 import ProjectSummaryCard from './ProjectSummaryCard'
 import { calculateAngleFromLine } from '../utils/orientationCalculator'
 import { useDebounce } from '../hooks/useDebounce'
@@ -49,6 +51,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   const [orientationAngle, setOrientationAngle] = useState(0)
   const [isRegeneratingGrid, setIsRegeneratingGrid] = useState(false)
   const [showComparator, setShowComparator] = useState(false)
+  const [view3DMode, setView3DMode] = useState(false)
   const [obstacles, setObstacles] = useState([])
   const [currentObstacleType, setCurrentObstacleType] = useState(null)
   const [obstacleMarkers, setObstacleMarkers] = useState([])
@@ -656,6 +659,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     setGrid([])
     setMetricas(null)
     setGridMarkers([])
+    setView3DMode(false)
     setDrawingMode('polygon')
     // Reset drawing editor states
     drawingHistory.clearHistory([])
@@ -1001,6 +1005,25 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         onCopyCoords={() => {}}
         onClose={() => setContextMenu({ ...contextMenu, isOpen: false })}
       />
+
+      {/* Toggle Vista 3D - disponible cuando hay parcela y pozo */}
+      {parcela && pozo && !view3DMode && (
+        <button className="view3d-toggle-btn" onClick={() => setView3DMode(true)}>
+          🌍 Vista 3D
+        </button>
+      )}
+
+      {/* Vista 3D - overlay a pantalla completa sobre el mapa */}
+      {view3DMode && parcela && pozo && (
+        <Suspense fallback={<div className="view3d-loading">Cargando vista 3D…</div>}>
+          <View3D
+            parcela={parcela}
+            pozo={pozo}
+            grid={grid}
+            onClose={() => setView3DMode(false)}
+          />
+        </Suspense>
+      )}
     </div>
   )
 }
