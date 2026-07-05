@@ -7,7 +7,7 @@ import './ControlPanel.css'
 
 export default function ControlPanel({
   config, setConfig, parcela, setParcela, pozo, grid, metricas, displayUnit, setDisplayUnit,
-  parcelas, selectedParcelaIndex, onSelectParcela
+  parcelas, selectedParcelaIndex, onSelectParcela, onSearchLocation
 }) {
   const [busqueda, setBusqueda] = useState('')
   const [mapRef, setMapRef] = useState(null)
@@ -91,12 +91,17 @@ export default function ControlPanel({
 
     try {
       const geocoder = new window.google.maps.Geocoder()
-      const results = await geocoder.geocode({ address: busqueda })
+      // La API con promesas devuelve { results: [...] }, no un array directo
+      const { results } = await geocoder.geocode({ address: busqueda })
 
       if (results && results.length > 0) {
         const location = results[0].geometry.location
-        // Centrar mapa en resultado (sin acceso directo al map, se hace desde MapContainer)
-        alert(`Ubicación encontrada: ${results[0].formatted_address}`)
+        // timestamp permite repetir la misma búsqueda y volver a centrar
+        onSearchLocation({
+          lat: location.lat(),
+          lng: location.lng(),
+          timestamp: Date.now()
+        })
       } else {
         alert('Ubicación no encontrada')
       }

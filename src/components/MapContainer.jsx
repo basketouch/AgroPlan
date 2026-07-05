@@ -28,7 +28,7 @@ import {
 import './MapContainer.css'
 import './DragPreviewTooltip.css'
 
-export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid, config, setGrid, setMetricas }) {
+export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid, config, setGrid, setMetricas, searchLocation }) {
   const mapRef = useRef(null)
   const [map, setMap] = useState(null)
   const [drawingMode, setDrawingMode] = useState('polygon') // 'polygon', 'marker', 'tractorLine'
@@ -409,6 +409,14 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
 
     initMap()
   }, [])
+
+  // Centrar el mapa cuando el usuario busca una ubicación
+  useEffect(() => {
+    if (!map || !searchLocation) return
+    console.log(`📍 Centrando mapa en búsqueda: ${searchLocation.lat}, ${searchLocation.lng}`)
+    map.panTo({ lat: searchLocation.lat, lng: searchLocation.lng })
+    map.setZoom(17)
+  }, [map, searchLocation])
 
   // Sincronizar marcadores con puntos del polígono (especialmente después de undo/redo)
   const markerSyncHandlers = {

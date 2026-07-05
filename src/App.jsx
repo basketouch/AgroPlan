@@ -66,6 +66,7 @@ export default function App() {
   const [panelWidth, setPanelWidth] = useState(380)
   const [isResizing, setIsResizing] = useState(false)
   const [displayUnit, setDisplayUnit] = useState('cm') // 'cm' or 'm'
+  const [searchLocation, setSearchLocation] = useState(null) // { lat, lng, timestamp } de la búsqueda
 
   const handleMouseDown = (e) => {
     e.preventDefault()
@@ -107,6 +108,7 @@ export default function App() {
               parcelas={parcelas}
               selectedParcelaIndex={selectedParcelaIndex}
               onSelectParcela={setSelectedParcelaIndex}
+              onSearchLocation={setSearchLocation}
             />
             {metricas && <MetricsPanel metricas={metricas} />}
           </>
@@ -134,6 +136,7 @@ export default function App() {
           config={config}
           setGrid={setGrid}
           setMetricas={setMetricas}
+          searchLocation={searchLocation}
         />
       </div>
     </div>
