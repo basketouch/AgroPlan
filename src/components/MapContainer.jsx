@@ -674,6 +674,12 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   // Keyboard shortcuts for drawing editor
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Ignorar atajos mientras se escribe en un campo de texto
+      const target = e.target
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable) {
+        return
+      }
+
       // Only handle shortcuts when drawing polygon
       if (drawingMode !== 'polygon') return
 
