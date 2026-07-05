@@ -1,21 +1,38 @@
-import { useState, useRef } from 'react'
-import { cropColors } from '../config'
+import { useState } from 'react'
 import { formatDisplayValue, parseInputValue } from '../utils/geometry'
+import { getRecommendedSpacing } from '../utils/cropSpacing'
 import CropQuantityModal from './CropQuantityModal'
 import CropCategorySelector from './CropCategorySelector'
 import './ControlPanel.css'
 
-export default function ControlPanel({
-  config, setConfig, parcela, setParcela, pozo, grid, metricas, displayUnit, setDisplayUnit,
-  parcelas, selectedParcelaIndex, onSelectParcela, onSearchLocation
-}) {
-  const [busqueda, setBusqueda] = useState('')
-  const [mapRef, setMapRef] = useState(null)
+const TIPO_RIEGO_LABELS = {
+  goteo: 'Goteo',
+  aspersion: 'Aspersión',
+  surcos: 'Surcos',
+}
+
+const PLANTING_MODE_LABELS = {
+  puntos: 'Puntos individuales',
+  surcos: 'Surcos (filas)',
+  filas_dobles: 'Filas dobles',
+  tresbolillo: 'Tresbolillo',
+}
+
+export default function ControlPanel({ config, setConfig, displayUnit, setDisplayUnit }) {
   const [riegoExpanded, setRiegoExpanded] = useState(true)
   const [cultivosExpanded, setCultivosExpanded] = useState(true)
-  const [parcelasExpanded, setParcelasExpanded] = useState(true)
+  const [modoExpanded, setModoExpanded] = useState(true)
   const [showCropModal, setShowCropModal] = useState(false)
   const [selectedCropForQuantity, setSelectedCropForQuantity] = useState(null)
+
+  const riegoSummary = `Marco ${formatDisplayValue(config.marcoHorizontal, displayUnit)}×${formatDisplayValue(config.marcoVertical, displayUnit)}${displayUnit} · Retranqueo ${formatDisplayValue(config.retranqueo, displayUnit)}${displayUnit} · ${TIPO_RIEGO_LABELS[config.tipoRiego] || config.tipoRiego}`
+
+  const numCultivos = (config.cultivosSeleccionados || []).length
+  const cultivosSummary = numCultivos > 0
+    ? `${numCultivos} cultivo${numCultivos === 1 ? '' : 's'} seleccionado${numCultivos === 1 ? '' : 's'}`
+    : 'Sin cultivos seleccionados'
+
+  const modoSummary = PLANTING_MODE_LABELS[config.plantingMode] || config.plantingMode
 
   const handleInputChange = (field, value) => {
     // Parse the input value based on the current display unit and convert to cm for storage
@@ -24,25 +41,6 @@ export default function ControlPanel({
       ...prev,
       [field]: valueCm
     }))
-  }
-
-  const handleCropToggle = (cultivo) => {
-    setConfig(prev => {
-      const cultivos = prev.cultivosSeleccionados || []
-      const isSelected = cultivos.includes(cultivo)
-
-      if (isSelected) {
-        return {
-          ...prev,
-          cultivosSeleccionados: cultivos.filter(c => c !== cultivo)
-        }
-      } else {
-        return {
-          ...prev,
-          cultivosSeleccionados: [...cultivos, cultivo]
-        }
-      }
-    })
   }
 
   const handleCropQuantityChange = (cultivo, cantidad) => {
@@ -59,6 +57,18 @@ export default function ControlPanel({
     // Open modal for this crop
     setSelectedCropForQuantity(cropId)
     setShowCropModal(true)
+
+    // Autocompleta Marco H/V con el valor agronómico recomendado del cultivo
+    // (solo la primera vez que se selecciona; siempre editable después)
+    const yaSeleccionado = (config.cultivosSeleccionados || []).includes(cropId)
+    const marcoRecomendado = getRecommendedSpacing(cropId)
+    if (!yaSeleccionado && marcoRecomendado) {
+      setConfig(prev => ({
+        ...prev,
+        marcoHorizontal: marcoRecomendado.horizontal,
+        marcoVertical: marcoRecomendado.vertical,
+      }))
+    }
   }
 
   const handleQuantityConfirm = (quantity) => {
@@ -86,173 +96,11 @@ export default function ControlPanel({
     setSelectedCropForQuantity(null)
   }
 
-  const handleBusqueda = async () => {
-    if (!busqueda.trim() || !window.google) return
-
-    try {
-      const geocoder = new window.google.maps.Geocoder()
-      // La API con promesas devuelve { results: [...] }, no un array directo
-      const { results } = await geocoder.geocode({ address: busqueda })
-
-      if (results && results.length > 0) {
-        const location = results[0].geometry.location
-        // timestamp permite repetir la misma búsqueda y volver a centrar
-        onSearchLocation({
-          lat: location.lat(),
-          lng: location.lng(),
-          timestamp: Date.now()
-        })
-      } else {
-        alert('Ubicación no encontrada')
-      }
-    } catch (error) {
-      console.error('Error en búsqueda:', error)
-      alert('Error al buscar ubicación')
-    }
-  }
-
-  const handleDescargarPDF = () => {
-    if (!parcela || !metricas) {
-      alert('Primero debes generar un layout')
-      return
-    }
-
-    // Por ahora, crear un archivo de texto con los datos
-    const dataStr = JSON.stringify({
-      parcela: parcela,
-      metricas: metricas,
-      config: config,
-    }, null, 2)
-
-    const element = document.createElement('a')
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(dataStr))
-    element.setAttribute('download', 'agrofit-layout.json')
-    element.style.display = 'none'
-    document.body.appendChild(element)
-    element.click()
-    document.body.removeChild(element)
-
-    alert('Datos exportados como JSON')
-  }
-
-  const downloadScreenshot = async () => {
-    if (!parcela || !metricas) {
-      alert('Primero debes generar un layout')
-      return
-    }
-
-    try {
-      // Intentar usar html2canvas si está disponible
-      const canvas = await html2canvas(document.querySelector('.map-container'))
-      const link = document.createElement('a')
-      link.href = canvas.toDataURL()
-      link.download = 'agrofit-layout.png'
-      link.click()
-    } catch (error) {
-      alert('Descarga de PNG requiere dependencia html2canvas. Por ahora usa la exportación JSON.')
-    }
-  }
-
   return (
     <div className="control-panel">
-      <h1>🌱 AgroPlan</h1>
-
-      <section className="search-section">
-        <label>Buscar municipio o coordenada</label>
-        <input
-          type="text"
-          placeholder="Ej: 'Madrid' o '40.4168,-3.7038'"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleBusqueda()}
-        />
-        <button onClick={handleBusqueda}>Buscar</button>
-      </section>
-
-      <section className="status-section">
-        <div className="status-item">
-          <span>Parcela:</span>
-          <span className={`status-value ${parcela ? 'done' : 'pending'}`}>
-            {parcela ? '✓ Dibujada' : '○ Pendiente'}
-          </span>
-        </div>
-        <div className="status-item">
-          <span>Pozo:</span>
-          <span className={`status-value ${pozo ? 'done' : 'pending'}`}>
-            {pozo ? '✓ Marcado' : '○ Pendiente'}
-          </span>
-        </div>
-        <div className="status-item">
-          <span>Grid:</span>
-          <span className={`status-value ${grid.length > 0 ? 'done' : 'pending'}`}>
-            {grid.length > 0 ? `✓ ${grid.length} plantas` : '○ Sin generar'}
-          </span>
-        </div>
-      </section>
-
-      {/* PARCELAS SECTION: Seleccionar entre múltiples parcelas */}
-      {parcelas.length > 0 && (
-        <section className="parcelas-section" style={{ marginBottom: '15px', padding: '12px', background: '#f9f9f9', borderRadius: '6px', border: '1px solid #eee' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <h4 style={{ margin: 0, fontSize: '12px', fontWeight: '600', color: '#333', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📋 Mis Parcelas</h4>
-            <button
-              onClick={() => setParcelasExpanded(!parcelasExpanded)}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '14px',
-                padding: '0 4px',
-                color: '#666',
-              }}
-            >
-              {parcelasExpanded ? '▼' : '▶'}
-            </button>
-          </div>
-          {parcelasExpanded && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {parcelas.map((p, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', background: selectedParcelaIndex === idx ? '#d4e8d4' : '#fff', border: selectedParcelaIndex === idx ? '1px solid #4CAF50' : '1px solid #ddd', borderRadius: '4px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    checked={selectedParcelaIndex === idx}
-                    onChange={() => onSelectParcela(idx)}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  <span style={{ flex: 1, fontSize: '11px', fontWeight: '500', color: '#333' }}>Parcela {idx + 1}</span>
-                  <button
-                    onClick={() => {
-                      // Seleccionar la parcela antes de eliminarla, para que setParcela() sepa cuál eliminar
-                      if (selectedParcelaIndex !== idx) {
-                        onSelectParcela(idx)
-                      }
-                      // Después de un pequeño delay, ejecutar la eliminación
-                      setTimeout(() => setParcela(null), 10)
-                    }}
-                    style={{
-                      background: '#FF6B6B',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '3px',
-                      padding: '4px 8px',
-                      fontSize: '10px',
-                      cursor: 'pointer',
-                      fontWeight: '600'
-                    }}
-                    title="Eliminar parcela"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      )}
-
       {/* SECTION 1: Tipo de Riego y Márgenes */}
       <section className="config-section">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: riegoExpanded ? '15px' : '0' }}>
           <h3 style={{ margin: 0, flex: 1 }}>Tipo de Riego y Márgenes</h3>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <div style={{
@@ -314,6 +162,10 @@ export default function ControlPanel({
             </button>
           </div>
         </div>
+
+        {!riegoExpanded && (
+          <p className="section-summary">{riegoSummary}</p>
+        )}
 
         {riegoExpanded && (
           <>
@@ -400,7 +252,7 @@ export default function ControlPanel({
 
       {/* SECTION 2: Cultivos a Plantar */}
       <section className="config-section">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: cultivosExpanded ? '15px' : '0' }}>
           <h3 style={{ margin: 0, flex: 1 }}>Cultivos a Plantar</h3>
           <button
             onClick={() => setCultivosExpanded(!cultivosExpanded)}
@@ -419,6 +271,10 @@ export default function ControlPanel({
           </button>
         </div>
 
+        {!cultivosExpanded && (
+          <p className="section-summary">{cultivosSummary}</p>
+        )}
+
         {cultivosExpanded && (
           <CropCategorySelector
             selectedCrops={config.cultivosSeleccionados || []}
@@ -431,10 +287,31 @@ export default function ControlPanel({
 
       {/* SECTION 3: Modo de Plantación */}
       <section className="config-section">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: modoExpanded ? '15px' : '0' }}>
           <h3 style={{ margin: 0, flex: 1 }}>Modo de Plantación</h3>
+          <button
+            onClick={() => setModoExpanded(!modoExpanded)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '18px',
+              padding: '4px 8px',
+              color: '#2d5016',
+              fontWeight: 'bold',
+            }}
+            title={modoExpanded ? 'Colapsar' : 'Expandir'}
+          >
+            {modoExpanded ? '▼' : '▶'}
+          </button>
         </div>
 
+        {!modoExpanded && (
+          <p className="section-summary">{modoSummary}</p>
+        )}
+
+        {modoExpanded && (
+        <>
         <div className="planting-mode-selector">
           <button
             className={`mode-btn ${config.plantingMode === 'puntos' ? 'active' : ''}`}
@@ -471,41 +348,9 @@ export default function ControlPanel({
           {config.plantingMode === 'filas_dobles' && <span>Filas Dobles - Cultivo intensivo</span>}
           {config.plantingMode === 'tresbolillo' && <span>Tresbolillo - Densidad optimizada</span>}
         </div>
+        </>
+        )}
       </section>
-
-      <section className="actions-section">
-        <button
-          className={`btn-primary ${!parcela || !pozo ? 'disabled' : ''}`}
-          disabled={!parcela || !pozo}
-          title={!parcela || !pozo ? 'Dibuja parcela y marca pozo primero' : 'Generar layout'}
-        >
-          ✨ Generar Layout
-        </button>
-        <button className="btn-secondary" onClick={downloadScreenshot}>
-          📥 Descargar PNG
-        </button>
-        <button className="btn-secondary" onClick={handleDescargarPDF}>
-          📊 Exportar Datos
-        </button>
-      </section>
-
-      {metricas && (
-        <section className="quick-stats">
-          <h3>Última generación</h3>
-          <div className="stat-row">
-            <span>Plantas:</span>
-            <strong>{metricas.numeroPlantas}</strong>
-          </div>
-          <div className="stat-row">
-            <span>Área:</span>
-            <strong>{metricas.areaTotalHa.toFixed(2)} ha</strong>
-          </div>
-          <div className="stat-row">
-            <span>Densidad:</span>
-            <strong>{metricas.densidad.toFixed(0)} pl/ha</strong>
-          </div>
-        </section>
-      )}
 
       {/* Crop Quantity Modal */}
       <CropQuantityModal

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getCropMetadata } from '../utils/cropCategories'
+import { getRecommendedSpacing } from '../utils/cropSpacing'
 import './CropQuantityModal.css'
 
 export default function CropQuantityModal({
@@ -39,6 +40,7 @@ export default function CropQuantityModal({
   if (!isOpen) return null
 
   const cropMeta = getCropMetadata(cropId)
+  const marcoRecomendado = getRecommendedSpacing(cropId)
 
   return (
     <div className="crop-modal-overlay" onClick={handleBackdropClick}>
@@ -47,6 +49,12 @@ export default function CropQuantityModal({
           <span className="crop-modal-emoji">{cropMeta.emoji}</span>
           <h3>{cropMeta.name}</h3>
         </div>
+
+        {marcoRecomendado && (
+          <p style={{ fontSize: '12px', color: '#777', margin: '0 0 12px', textAlign: 'center' }}>
+            Marco recomendado: {marcoRecomendado.horizontal}×{marcoRecomendado.vertical}cm
+          </p>
+        )}
 
         <div className="crop-modal-body">
           <label htmlFor="quantity-input">Cantidad de plantas:</label>

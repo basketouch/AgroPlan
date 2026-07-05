@@ -21,6 +21,8 @@ export {
 
 export { cropColors, getCropColor } from '../utils/cropColors'
 
+export { CROP_SPACING, getRecommendedSpacing } from '../utils/cropSpacing'
+
 export {
   OBSTACLE_TYPES,
   distanceBetweenPoints,

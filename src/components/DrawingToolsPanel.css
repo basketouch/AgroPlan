@@ -1,35 +1,8 @@
 .drawing-tools-panel {
-  position: fixed;
-  right: 15px;
-  top: 80px;
-  width: 280px;
-  max-height: calc(100vh - 100px);
+  width: 100%;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  overflow-y: auto;
-  z-index: 98;
   display: flex;
   flex-direction: column;
-}
-
-/* Scrollbar styling */
-.drawing-tools-panel::-webkit-scrollbar {
-  width: 6px;
-}
-
-.drawing-tools-panel::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 8px;
-}
-
-.drawing-tools-panel::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 3px;
-}
-
-.drawing-tools-panel::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
 
 /* Panel Sections */
@@ -434,24 +407,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
-  .drawing-tools-panel {
-    width: 260px;
-    right: 10px;
-    top: 70px;
-    max-height: calc(100vh - 90px);
-  }
-}
-
 @media (max-width: 768px) {
-  .drawing-tools-panel {
-    width: calc(100% - 20px);
-    right: 10px;
-    left: 10px;
-    top: 65px;
-    max-height: 300px;
-  }
-
   .section-content {
     padding: 10px;
     gap: 8px;
@@ -468,14 +424,6 @@
 }
 
 @media (max-width: 480px) {
-  .drawing-tools-panel {
-    width: calc(100% - 16px);
-    right: 8px;
-    left: 8px;
-    top: 60px;
-    max-height: 250px;
-  }
-
   .mode-buttons {
     grid-template-columns: 1fr;
   }

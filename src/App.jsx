@@ -1,8 +1,7 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useGoogleMaps } from './hooks/useGoogleMaps'
 import MapContainer from './components/MapContainer'
-import ControlPanel from './components/ControlPanel'
-import MetricsPanel from './components/MetricsPanel'
+import SidePanel from './components/SidePanel'
 import HamburgerMenu from './components/HamburgerMenu'
 import { DEFAULT_AGRICULTURAL_CONFIG, DEFAULT_UI_CONFIG } from './config'
 import './App.css'
@@ -43,6 +42,11 @@ export default function App() {
   const [displayUnit, setDisplayUnit] = useState(DEFAULT_UI_CONFIG.displayUnit)
   const [searchLocation, setSearchLocation] = useState(null) // { lat, lng, timestamp } de la búsqueda
 
+  // Nodo DOM del slot de la pestaña "Parcela", donde MapContainer porta DrawingToolsPanel.
+  // Se usa un callback ref (en vez de useRef) para forzar un re-render en cuanto el nodo se monta.
+  const [parcelaTabSlotNode, setParcelaTabSlotNode] = useState(null)
+  const parcelaTabSlotRef = useCallback((node) => setParcelaTabSlotNode(node), [])
+
   const handleMouseDown = (e) => {
     e.preventDefault()
     setIsResizing(true)
@@ -69,24 +73,22 @@ export default function App() {
         }}
       >
         {panelVisible && (
-          <>
-            <ControlPanel
-              config={config}
-              setConfig={setConfig}
-              parcela={parcela}
-              setParcela={setParcela}
-              pozo={pozo}
-              grid={grid}
-              metricas={metricas}
-              displayUnit={displayUnit}
-              setDisplayUnit={setDisplayUnit}
-              parcelas={parcelas}
-              selectedParcelaIndex={selectedParcelaIndex}
-              onSelectParcela={setSelectedParcelaIndex}
-              onSearchLocation={setSearchLocation}
-            />
-            {metricas && <MetricsPanel metricas={metricas} />}
-          </>
+          <SidePanel
+            config={config}
+            setConfig={setConfig}
+            parcela={parcela}
+            setParcela={setParcela}
+            pozo={pozo}
+            grid={grid}
+            metricas={metricas}
+            displayUnit={displayUnit}
+            setDisplayUnit={setDisplayUnit}
+            parcelas={parcelas}
+            selectedParcelaIndex={selectedParcelaIndex}
+            onSelectParcela={setSelectedParcelaIndex}
+            onSearchLocation={setSearchLocation}
+            parcelaTabSlotRef={parcelaTabSlotRef}
+          />
         )}
         {panelVisible && (
           <div
@@ -110,8 +112,10 @@ export default function App() {
           grid={grid}
           config={config}
           setGrid={setGrid}
+          metricas={metricas}
           setMetricas={setMetricas}
           searchLocation={searchLocation}
+          portalTarget={parcelaTabSlotNode}
         />
       </div>
     </div>

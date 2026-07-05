@@ -564,7 +564,7 @@ function asignarCultivosMultiples(points, pozoCord, config) {
 
   // Si no hay cantidades especificadas, usar distribución por zonas (backward compatibility)
   if (totalSolicitado === 0) {
-    return asignarCultivosMultiplesLegacy(points, pozoCord, config, cultivos, ranges, pozoPoint)
+    return asignarCultivosMultiplesLegacy(points, pozoCord, cultivos, ranges, pozoPoint)
   }
 
   // Calcular distancia y zona de cada punto

@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { generatePlantingGrid, isPointInPolygon } from '../utils/geometry'
 import { getCropColor } from '../utils/cropColors'
 import { validatePolygon } from '../utils/polygonValidation'
@@ -10,6 +11,7 @@ import DrawingToolsPanel from './DrawingToolsPanel'
 import PointContextMenu from './PointContextMenu'
 import PointListPanel from './PointListPanel'
 import DragPreviewTooltip from './DragPreviewTooltip'
+import ProjectSummaryCard from './ProjectSummaryCard'
 import { calculateAngleFromLine } from '../utils/orientationCalculator'
 import { useDebounce } from '../hooks/useDebounce'
 import { useScenarioComparator } from '../hooks/useScenarioComparator'
@@ -28,9 +30,10 @@ import { DEFAULT_MAP_CONFIG, DEFAULT_DRAWING_CONFIG, OBSTACLE_TYPES, createObsta
 import './MapContainer.css'
 import './DragPreviewTooltip.css'
 
-export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid, config, setGrid, setMetricas, searchLocation }) {
+export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid, config, setGrid, metricas, setMetricas, searchLocation, portalTarget }) {
   const mapRef = useRef(null)
   const [map, setMap] = useState(null)
+  const [isIsometric, setIsIsometric] = useState(false)
   const [drawingMode, setDrawingMode] = useState('polygon') // 'polygon', 'marker', 'tractorLine'
   const [polygonPoints, setPolygonPoints] = useState([])
   const [parcelaPolygon, setParcelaPolygon] = useState(null)
@@ -671,6 +674,15 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     setOrientationAngle(optimizedConfig.angle)
   }, [])
 
+  // Toggle vista isométrica (tilt 45°) para efecto "wow" comercial
+  const handleToggleIsometric = useCallback(() => {
+    if (!map) return
+    const next = !isIsometric
+    map.setTilt(next ? 45 : 0)
+    map.setHeading(next ? 45 : 0)
+    setIsIsometric(next)
+  }, [map, isIsometric])
+
   // Keyboard shortcuts for drawing editor
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -819,6 +831,13 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     <div className="map-container-wrapper">
       <div ref={mapRef} className="map-container" />
 
+      {/* Tarjeta de resumen del proyecto - aparece automáticamente al generar el layout */}
+      <ProjectSummaryCard
+        metricas={metricas}
+        isIsometric={isIsometric}
+        onToggleIsometric={handleToggleIsometric}
+      />
+
       {/* Tractor Line Guide Control */}
       <TractorLineGuide
         isActive={tractorLineActive && parcela && pozo}
@@ -831,7 +850,8 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         }}
       />
 
-      {/* Drawing Tools Panel - Right Sidebar */}
+      {/* Drawing Tools Panel - portado a la pestaña "Parcela" del panel lateral */}
+      {portalTarget && createPortal(
       <DrawingToolsPanel
         canUndo={drawingHistory.canUndo}
         canRedo={drawingHistory.canRedo}
@@ -898,7 +918,9 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         OBSTACLE_TYPES={OBSTACLE_TYPES}
         showPointListPanel={showPointListPanel}
         onTogglePointListPanel={() => setShowPointListPanel(!showPointListPanel)}
-      />
+      />,
+      portalTarget
+      )}
 
       {/* Drag Preview Tooltip */}
       <DragPreviewTooltip dragPreview={dragPreview} />
