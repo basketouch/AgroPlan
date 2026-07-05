@@ -12,6 +12,18 @@ export {
 } from './defaults'
 
 export {
+  AGRICULTURAL_PROFILES,
+  applyProfile,
+  getMatchingProfileId,
+} from './profiles'
+
+export {
+  DEFAULT_PREFERENCES,
+  loadPreferences,
+  savePreferences,
+} from './userPreferences'
+
+export {
   CROP_CATEGORIES,
   CROP_METADATA,
   getAllCropIds,

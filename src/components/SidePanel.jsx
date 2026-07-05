@@ -1,15 +1,18 @@
 import { useState } from 'react'
 import ControlPanel from './ControlPanel'
 import MetricsPanel from './MetricsPanel'
+import SettingsModal from './SettingsModal'
 import './SidePanel.css'
 
 export default function SidePanel({
   config, setConfig, parcela, setParcela, pozo, grid, metricas, displayUnit, setDisplayUnit,
-  parcelas, selectedParcelaIndex, onSelectParcela, onSearchLocation, parcelaTabSlotRef
+  parcelas, selectedParcelaIndex, onSelectParcela, onSearchLocation, parcelaTabSlotRef,
+  preferences, onSavePreferences
 }) {
   const [activeTab, setActiveTab] = useState('parcela')
   const [busqueda, setBusqueda] = useState('')
   const [parcelasExpanded, setParcelasExpanded] = useState(true)
+  const [showSettings, setShowSettings] = useState(false)
 
   const handleBusqueda = async () => {
     if (!busqueda.trim() || !window.google) return
@@ -81,7 +84,16 @@ export default function SidePanel({
   return (
     <div className="side-panel">
       <div className="side-panel-header">
-        <h1>🌱 AgroPlan</h1>
+        <div className="side-panel-title-row">
+          <h1>🌱 AgroPlan</h1>
+          <button
+            className="settings-gear-btn"
+            onClick={() => setShowSettings(true)}
+            title="Ajustes"
+          >
+            ⚙️
+          </button>
+        </div>
 
         <section className="search-section">
           <label>Buscar municipio o coordenada</label>
@@ -196,6 +208,13 @@ export default function SidePanel({
             setDisplayUnit={setDisplayUnit}
           />
         )}
+
+        <SettingsModal
+          isOpen={showSettings}
+          preferences={preferences}
+          onSave={onSavePreferences}
+          onClose={() => setShowSettings(false)}
+        />
 
         {activeTab === 'resultado' && (
           <div className="resultado-tab">

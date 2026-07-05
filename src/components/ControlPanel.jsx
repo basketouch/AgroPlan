@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { formatDisplayValue, parseInputValue } from '../utils/geometry'
 import { getRecommendedSpacing } from '../utils/cropSpacing'
+import { AGRICULTURAL_PROFILES, applyProfile, getMatchingProfileId } from '../config'
 import CropQuantityModal from './CropQuantityModal'
 import CropCategorySelector from './CropCategorySelector'
 import './ControlPanel.css'
@@ -96,8 +97,30 @@ export default function ControlPanel({ config, setConfig, displayUnit, setDispla
     setSelectedCropForQuantity(null)
   }
 
+  const activeProfileId = getMatchingProfileId(config)
+
   return (
     <div className="control-panel">
+      {/* SECTION 0: Perfiles agrícolas predefinidos */}
+      <section className="config-section">
+        <h3 style={{ margin: '0 0 4px 0' }}>Perfiles rápidos</h3>
+        <small style={{ fontSize: '11px', color: '#999', marginBottom: '10px', display: 'block' }}>
+          Aplica marco, retranqueo, riego y modo en un clic
+        </small>
+        <div className="profile-chips">
+          {Object.values(AGRICULTURAL_PROFILES).map(profile => (
+            <button
+              key={profile.id}
+              className={`profile-chip ${activeProfileId === profile.id ? 'active' : ''}`}
+              onClick={() => setConfig(prev => applyProfile(prev, profile.id))}
+              title={profile.description}
+            >
+              {profile.icon} {profile.name}
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* SECTION 1: Tipo de Riego y Márgenes */}
       <section className="config-section">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: riegoExpanded ? '15px' : '0' }}>

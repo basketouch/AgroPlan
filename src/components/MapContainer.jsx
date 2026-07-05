@@ -32,7 +32,11 @@ import { DEFAULT_MAP_CONFIG, DEFAULT_DRAWING_CONFIG, OBSTACLE_TYPES, createObsta
 import './MapContainer.css'
 import './DragPreviewTooltip.css'
 
-export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid, config, setGrid, metricas, setMetricas, searchLocation, portalTarget }) {
+export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid, config, setGrid, metricas, setMetricas, searchLocation, portalTarget, preferences }) {
+  // Preferencias de usuario (Ajustes) con fallback a los defaults
+  const snapGridSize = preferences?.snapGridSizeMeters ?? DEFAULT_DRAWING_CONFIG.snapGridSizeMeters
+  const searchZoom = preferences?.searchZoom ?? DEFAULT_MAP_CONFIG.searchZoom
+  const mapTypeId = preferences?.mapTypeId ?? DEFAULT_MAP_CONFIG.mapTypeId
   const mapRef = useRef(null)
   const [map, setMap] = useState(null)
   const [isIsometric, setIsIsometric] = useState(false)
@@ -112,7 +116,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
 
     // Aplicar snap-to-grid si está activado
     if (snapToGrid) {
-      newPoint = snapToGridFn(newPoint, DEFAULT_DRAWING_CONFIG.snapGridSizeMeters)
+      newPoint = snapToGridFn(newPoint, snapGridSize)
     }
 
     // Modo: insertar punto en línea existente
@@ -176,7 +180,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
 
     marker.addListener('dragend', (event) => {
       const draggedCoords = [event.latLng.lng(), event.latLng.lat()]
-      const finalCoords = snapToGrid ? snapToGridFn(draggedCoords, DEFAULT_DRAWING_CONFIG.snapGridSizeMeters) : draggedCoords
+      const finalCoords = snapToGrid ? snapToGridFn(draggedCoords, snapGridSize) : draggedCoords
 
       const updatedPoints = [...polygonPoints]
       updatedPoints[pointIndex] = finalCoords
@@ -210,7 +214,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
       })
       setPolygonLine(polyline)
     }
-  }, [polygonPoints, polygonLine, snapToGrid, editorDrawingMode, smoothCurves])
+  }, [polygonPoints, polygonLine, snapToGrid, snapGridSize, editorDrawingMode, smoothCurves])
 
   // Manejar clicks para marcador (pozo)
   const handleMarkerClick = useCallback((latLng, googleMap) => {
@@ -404,7 +408,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
       const mapOptions = {
         center: DEFAULT_MAP_CONFIG.center,
         zoom: DEFAULT_MAP_CONFIG.zoom,
-        mapTypeId: DEFAULT_MAP_CONFIG.mapTypeId,
+        mapTypeId: mapTypeId,
         tilt: DEFAULT_MAP_CONFIG.tilt,
         heading: DEFAULT_MAP_CONFIG.heading,
       }
@@ -421,8 +425,13 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     if (!map || !searchLocation) return
     console.log(`📍 Centrando mapa en búsqueda: ${searchLocation.lat}, ${searchLocation.lng}`)
     map.panTo({ lat: searchLocation.lat, lng: searchLocation.lng })
-    map.setZoom(DEFAULT_MAP_CONFIG.searchZoom)
+    map.setZoom(searchZoom)
   }, [map, searchLocation])
+
+  // Aplicar cambio de tipo de mapa desde Ajustes sin recargar
+  useEffect(() => {
+    if (map) map.setMapTypeId(mapTypeId)
+  }, [map, mapTypeId])
 
   // Sincronizar marcadores con puntos del polígono (especialmente después de undo/redo)
   const markerSyncHandlers = {
@@ -449,7 +458,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     onDrag: (idx, coords) => {
       // Live update during drag with visual feedback
       const originalCoords = polygonPoints[idx]
-      const snappedCoords = snapToGrid ? snapToGridFn(coords, DEFAULT_DRAWING_CONFIG.snapGridSizeMeters) : coords
+      const snappedCoords = snapToGrid ? snapToGridFn(coords, snapGridSize) : coords
 
       // Calculate distance moved
       const dx = snappedCoords[0] - originalCoords[0]
@@ -464,7 +473,7 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
       })
     },
     onDragEnd: (idx, coords) => {
-      const snappedCoords = snapToGrid ? snapToGridFn(coords, DEFAULT_DRAWING_CONFIG.snapGridSizeMeters) : coords
+      const snappedCoords = snapToGrid ? snapToGridFn(coords, snapGridSize) : coords
       const updatedPoints = [...polygonPoints]
       updatedPoints[idx] = snappedCoords
       setPolygonPoints(updatedPoints)

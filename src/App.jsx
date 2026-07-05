@@ -3,7 +3,7 @@ import { useGoogleMaps } from './hooks/useGoogleMaps'
 import MapContainer from './components/MapContainer'
 import SidePanel from './components/SidePanel'
 import HamburgerMenu from './components/HamburgerMenu'
-import { DEFAULT_AGRICULTURAL_CONFIG, DEFAULT_UI_CONFIG } from './config'
+import { DEFAULT_AGRICULTURAL_CONFIG, DEFAULT_UI_CONFIG, loadPreferences, savePreferences } from './config'
 import './App.css'
 
 export default function App() {
@@ -44,8 +44,17 @@ export default function App() {
   const [panelVisible, setPanelVisible] = useState(true)
   const [panelWidth, setPanelWidth] = useState(DEFAULT_UI_CONFIG.panelWidth)
   const [isResizing, setIsResizing] = useState(false)
-  const [displayUnit, setDisplayUnit] = useState(DEFAULT_UI_CONFIG.displayUnit)
   const [searchLocation, setSearchLocation] = useState(null) // { lat, lng, timestamp } de la búsqueda
+
+  // Preferencias de usuario (Ajustes): persisten en localStorage
+  const [preferences, setPreferences] = useState(loadPreferences)
+  const [displayUnit, setDisplayUnit] = useState(preferences.displayUnit)
+
+  const handleSavePreferences = (newPrefs) => {
+    setPreferences(newPrefs)
+    savePreferences(newPrefs)
+    setDisplayUnit(newPrefs.displayUnit)
+  }
 
   // Nodo DOM del slot de la pestaña "Parcela", donde MapContainer porta DrawingToolsPanel.
   // Se usa un callback ref (en vez de useRef) para forzar un re-render en cuanto el nodo se monta.
@@ -93,6 +102,8 @@ export default function App() {
             onSelectParcela={setSelectedParcelaIndex}
             onSearchLocation={setSearchLocation}
             parcelaTabSlotRef={parcelaTabSlotRef}
+            preferences={preferences}
+            onSavePreferences={handleSavePreferences}
           />
         )}
         {panelVisible && (
@@ -121,6 +132,7 @@ export default function App() {
           setMetricas={setMetricas}
           searchLocation={searchLocation}
           portalTarget={parcelaTabSlotNode}
+          preferences={preferences}
         />
       </div>
     </div>

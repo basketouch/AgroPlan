@@ -239,3 +239,25 @@
 .btn-secondary:hover {
   background: #f0f0f0;
 }
+
+/* Fila de título con botón de ajustes */
+.side-panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-gear-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.settings-gear-btn:hover {
+  background: #f0f0f0;
+  transform: rotate(30deg);
+}
