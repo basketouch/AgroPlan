@@ -24,6 +24,13 @@ export {
 } from './userPreferences'
 
 export {
+  CROP_CYCLES,
+  getCropAgroInfo,
+  getWaterLevelLabel,
+  getIncompatiblePairs,
+} from './cropAgronomy'
+
+export {
   CROP_CATEGORIES,
   CROP_METADATA,
   getAllCropIds,

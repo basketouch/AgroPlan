@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getCropMetadata } from '../utils/cropCategories'
 import { getRecommendedSpacing } from '../utils/cropSpacing'
+import { getCropAgroInfo } from '../config'
 import './CropQuantityModal.css'
 
 export default function CropQuantityModal({
@@ -41,6 +42,7 @@ export default function CropQuantityModal({
 
   const cropMeta = getCropMetadata(cropId)
   const marcoRecomendado = getRecommendedSpacing(cropId)
+  const agroInfo = getCropAgroInfo(cropId)
 
   return (
     <div className="crop-modal-overlay" onClick={handleBackdropClick}>
@@ -54,6 +56,35 @@ export default function CropQuantityModal({
           <p style={{ fontSize: '12px', color: '#777', margin: '0 0 12px', textAlign: 'center' }}>
             Marco recomendado: {marcoRecomendado.horizontal}×{marcoRecomendado.vertical}cm
           </p>
+        )}
+
+        {agroInfo && (
+          <div className="crop-agro-info">
+            {agroInfo.agua && (
+              <div className="crop-agro-item" title="Demanda de agua">
+                <span className="crop-agro-icon">{agroInfo.agua.icon}</span>
+                <span className="crop-agro-label">Agua</span>
+                <span className="crop-agro-value">{agroInfo.agua.label}</span>
+              </div>
+            )}
+            <div className="crop-agro-item" title="Duración del ciclo de cultivo">
+              <span className="crop-agro-icon">📆</span>
+              <span className="crop-agro-label">Ciclo</span>
+              <span className="crop-agro-value">
+                {agroInfo.cicloDias ? `${agroInfo.cicloDias} días` : 'Perenne'}
+              </span>
+            </div>
+            <div className="crop-agro-item" title="Época de siembra">
+              <span className="crop-agro-icon">🌱</span>
+              <span className="crop-agro-label">Siembra</span>
+              <span className="crop-agro-value">{agroInfo.siembra}</span>
+            </div>
+            <div className="crop-agro-item" title="Época de cosecha">
+              <span className="crop-agro-icon">🧺</span>
+              <span className="crop-agro-label">Cosecha</span>
+              <span className="crop-agro-value">{agroInfo.cosecha}</span>
+            </div>
+          </div>
         )}
 
         <div className="crop-modal-body">

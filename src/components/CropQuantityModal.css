@@ -146,3 +146,41 @@
     font-size: 16px; /* Prevents zoom on iOS */
   }
 }
+
+/* Ficha agronómica del cultivo */
+.crop-agro-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px;
+  background: #f6f9f3;
+  border: 1px solid #dde8d4;
+  border-radius: 6px;
+}
+
+.crop-agro-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.crop-agro-icon {
+  font-size: 14px;
+}
+
+.crop-agro-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.crop-agro-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2d5016;
+}

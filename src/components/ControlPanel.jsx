@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { formatDisplayValue, parseInputValue } from '../utils/geometry'
 import { getRecommendedSpacing } from '../utils/cropSpacing'
-import { AGRICULTURAL_PROFILES, applyProfile, getMatchingProfileId } from '../config'
+import { AGRICULTURAL_PROFILES, applyProfile, getMatchingProfileId, getIncompatiblePairs } from '../config'
+import { getCropMetadata } from '../utils/cropCategories'
 import CropQuantityModal from './CropQuantityModal'
 import CropCategorySelector from './CropCategorySelector'
 import './ControlPanel.css'
@@ -98,6 +99,7 @@ export default function ControlPanel({ config, setConfig, displayUnit, setDispla
   }
 
   const activeProfileId = getMatchingProfileId(config)
+  const incompatiblePairs = getIncompatiblePairs(config.cultivosSeleccionados || [])
 
   return (
     <div className="control-panel">
@@ -305,6 +307,19 @@ export default function ControlPanel({ config, setConfig, displayUnit, setDispla
             onCropSelect={handleCropSelect}
             onQuantityChange={handleCropQuantityChange}
           />
+        )}
+
+        {/* Aviso de cultivos incompatibles (plagas/enfermedades comunes) */}
+        {incompatiblePairs.length > 0 && (
+          <div className="crop-incompatible-warning">
+            <strong>⚠️ Cultivos incompatibles:</strong>
+            {incompatiblePairs.map(([a, b]) => (
+              <div key={`${a}-${b}`} className="crop-incompatible-pair">
+                {getCropMetadata(a).emoji} {getCropMetadata(a).name} + {getCropMetadata(b).emoji} {getCropMetadata(b).name}
+              </div>
+            ))}
+            <small>Comparten plagas o enfermedades. El sistema los separará en zonas distintas, pero considera plantarlos en parcelas separadas.</small>
+          </div>
         )}
       </section>
 

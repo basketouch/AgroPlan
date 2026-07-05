@@ -312,7 +312,7 @@ function getZoneRanges(tipoRiego) {
  * Demanda hídrica de cultivos (índice de exigencia de agua)
  * Mayor valor = más agua necesaria = más cerca del pozo
  */
-const waterDemand = {
+export const waterDemand = {
   // Hortalizas
   tomate: 8,      // Muy exigente
   pimiento: 8,    // Muy exigente
@@ -342,7 +342,7 @@ const waterDemand = {
  * 0 = Neutro (Sin problema)
  * -1 = Incompatible (Plagas/enfermedades comunes, no juntos)
  */
-const cropCompatibility = {
+export const cropCompatibility = {
   // ===== HORTALIZAS =====
   tomate: {
     tomate: 0,      // Mismo cultivo
