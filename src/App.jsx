@@ -13,15 +13,20 @@ export default function App() {
   // Múltiples parcelas - el usuario puede crear varias
   const [parcelas, setParcelas] = useState([])
   const [selectedParcelaIndex, setSelectedParcelaIndex] = useState(null)
-  const parcela = selectedParcelaIndex !== null && parcelas[selectedParcelaIndex] ? parcelas[selectedParcelaIndex] : null
+  // Sin selección explícita, la parcela activa es la última creada
+  // (permite generar grid / vista 3D justo después de dibujarla)
+  const activeParcelaIndex = selectedParcelaIndex !== null
+    ? selectedParcelaIndex
+    : (parcelas.length > 0 ? parcelas.length - 1 : null)
+  const parcela = activeParcelaIndex !== null && parcelas[activeParcelaIndex] ? parcelas[activeParcelaIndex] : null
 
   const setParcela = (newParcela) => {
     if (newParcela === null) {
-      // Eliminar la parcela seleccionada
-      if (selectedParcelaIndex !== null) {
-        const updated = parcelas.filter((_, i) => i !== selectedParcelaIndex)
+      // Eliminar la parcela activa
+      if (activeParcelaIndex !== null) {
+        const updated = parcelas.filter((_, i) => i !== activeParcelaIndex)
         setParcelas(updated)
-        setSelectedParcelaIndex(updated.length > 0 ? Math.max(0, selectedParcelaIndex - 1) : null)
+        setSelectedParcelaIndex(null)
       }
     } else {
       // Siempre crear una nueva parcela (para permitir múltiples)
@@ -84,7 +89,7 @@ export default function App() {
             displayUnit={displayUnit}
             setDisplayUnit={setDisplayUnit}
             parcelas={parcelas}
-            selectedParcelaIndex={selectedParcelaIndex}
+            selectedParcelaIndex={activeParcelaIndex}
             onSelectParcela={setSelectedParcelaIndex}
             onSearchLocation={setSearchLocation}
             parcelaTabSlotRef={parcelaTabSlotRef}
