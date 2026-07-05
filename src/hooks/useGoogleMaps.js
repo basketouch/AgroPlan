@@ -17,10 +17,16 @@ export function useGoogleMaps() {
     // Obtener API key del .env.local
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
-    if (!apiKey || apiKey === 'TU_AIzaSyBx6IbZfGeo85krBKl8DNSTcqH1bRE9GLk') {
+    if (!apiKey) {
       console.error('❌ Google Maps API key no configurada')
-      console.error('Agrega tu API key a .env.local:')
-      console.error('VITE_GOOGLE_MAPS_API_KEY=tu_clave_aqui')
+      if (import.meta.env.MODE === 'development') {
+        console.error('Para desarrollo local:')
+        console.error('  1. Crea .env.local en la raíz del proyecto')
+        console.error('  2. Añade: VITE_GOOGLE_MAPS_API_KEY=tu_clave_aqui')
+      } else {
+        console.error('Para producción (Vercel):')
+        console.error('  Añade VITE_GOOGLE_MAPS_API_KEY a Vercel Environment Variables')
+      }
       return
     }
 
