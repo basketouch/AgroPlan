@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { CROP_CATEGORIES, getCropMetadata } from '../utils/cropCategories'
-import { getCropColor } from '../utils/cropColors'
+import { CROP_CATEGORIES, getCropMetadata, getCropColor } from '../config'
 import './CropCategorySelector.css'
 
 export default function CropCategorySelector({

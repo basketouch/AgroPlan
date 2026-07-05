@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { OBSTACLE_TYPES } from '../utils/obstacleHelpers'
+import { OBSTACLE_TYPES } from '../config'
 import './ObstaclePanel.css'
 
 export default function ObstaclePanel({

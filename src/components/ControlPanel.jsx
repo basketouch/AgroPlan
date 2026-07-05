@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { cropColors } from '../utils/cropColors'
+import { cropColors } from '../config'
 import { formatDisplayValue, parseInputValue } from '../utils/geometry'
 import CropQuantityModal from './CropQuantityModal'
 import CropCategorySelector from './CropCategorySelector'

@@ -4,6 +4,7 @@ import MapContainer from './components/MapContainer'
 import ControlPanel from './components/ControlPanel'
 import MetricsPanel from './components/MetricsPanel'
 import HamburgerMenu from './components/HamburgerMenu'
+import { DEFAULT_AGRICULTURAL_CONFIG, DEFAULT_UI_CONFIG } from './config'
 import './App.css'
 
 export default function App() {
@@ -33,39 +34,13 @@ export default function App() {
   }
 
   const [pozo, setPozo] = useState(null)
-  const [config, setConfig] = useState({
-    marcoHorizontal: 70,
-    marcoVertical: 70,
-    retranqueo: 50,
-    tipoRiego: 'goteo',
-    cultivosSeleccionados: [],
-    modoPlantacion: 'espaciamiento', // 'espaciamiento' | 'cantidad-fija'
-    cantidadesCultivos: {
-      // Hortalizas
-      tomate: 0,
-      patata: 0,
-      lechuga: 0,
-      cebolla: 0,
-      pimiento: 0,
-      pepino: 0,
-      zanahoria: 0,
-      // Extensivo
-      trigo: 0,
-      maiz: 0,
-      girasol: 0,
-      // Aromáticas
-      romero: 0,
-      tomillo: 0,
-      oregano: 0,
-    },
-    plantingMode: 'puntos'
-  })
+  const [config, setConfig] = useState(DEFAULT_AGRICULTURAL_CONFIG)
   const [grid, setGrid] = useState([])
   const [metricas, setMetricas] = useState(null)
   const [panelVisible, setPanelVisible] = useState(true)
-  const [panelWidth, setPanelWidth] = useState(380)
+  const [panelWidth, setPanelWidth] = useState(DEFAULT_UI_CONFIG.panelWidth)
   const [isResizing, setIsResizing] = useState(false)
-  const [displayUnit, setDisplayUnit] = useState('cm') // 'cm' or 'm'
+  const [displayUnit, setDisplayUnit] = useState(DEFAULT_UI_CONFIG.displayUnit)
   const [searchLocation, setSearchLocation] = useState(null) // { lat, lng, timestamp } de la búsqueda
 
   const handleMouseDown = (e) => {
@@ -79,7 +54,7 @@ export default function App() {
 
   const handleMouseMove = (e) => {
     if (!isResizing) return
-    const newWidth = Math.max(300, Math.min(600, e.clientX))
+    const newWidth = Math.max(DEFAULT_UI_CONFIG.panelWidthMin, Math.min(DEFAULT_UI_CONFIG.panelWidthMax, e.clientX))
     setPanelWidth(newWidth)
   }
 
