@@ -100,3 +100,9 @@
     max-width: 45%;
   }
 }
+
+.view3d-legend-divider {
+  height: 1px;
+  background: #ddd;
+  margin: 2px 0;
+}

@@ -36,10 +36,11 @@ export function createLocalProjection(origin) {
 }
 
 /**
- * Proyecta la escena completa (parcela, pozo, plantas) a coordenadas locales.
- * Devuelve también el radio aproximado de la parcela para encuadrar la cámara.
+ * Proyecta la escena completa (parcela, pozo, plantas, obstáculos) a
+ * coordenadas locales. Devuelve también el radio aproximado de la
+ * parcela para encuadrar la cámara.
  */
-export function projectScene(parcela, pozo, grid) {
+export function projectScene(parcela, pozo, grid, obstacles) {
   // La parcela llega cerrada (último punto = primero); quitar el duplicado
   const ring = parcela.length > 1 &&
     parcela[0][0] === parcela[parcela.length - 1][0] &&
@@ -58,10 +59,16 @@ export function projectScene(parcela, pozo, grid) {
     cultivo: point.properties?.cultivo || 'tomate',
   }))
 
+  const obstaclesXZ = (obstacles || []).map(o => ({
+    position: project(o.coordinates),
+    type: o.type,
+    radiusMeters: o.radius,
+  }))
+
   const radius = Math.max(
     10,
     ...parcelaXZ.map(([x, z]) => Math.sqrt(x * x + z * z))
   )
 
-  return { parcelaXZ, pozoXZ, plants, radius }
+  return { parcelaXZ, pozoXZ, plants, obstaclesXZ, radius }
 }

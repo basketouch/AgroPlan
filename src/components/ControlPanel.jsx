@@ -21,6 +21,7 @@ const PLANTING_MODE_LABELS = {
 }
 
 export default function ControlPanel({ config, setConfig, displayUnit, setDisplayUnit }) {
+  const [profilesExpanded, setProfilesExpanded] = useState(true)
   const [riegoExpanded, setRiegoExpanded] = useState(true)
   const [cultivosExpanded, setCultivosExpanded] = useState(true)
   const [modoExpanded, setModoExpanded] = useState(true)
@@ -105,22 +106,52 @@ export default function ControlPanel({ config, setConfig, displayUnit, setDispla
     <div className="control-panel">
       {/* SECTION 0: Perfiles agrícolas predefinidos */}
       <section className="config-section">
-        <h3 style={{ margin: '0 0 4px 0' }}>Perfiles rápidos</h3>
-        <small style={{ fontSize: '11px', color: '#999', marginBottom: '10px', display: 'block' }}>
-          Aplica marco, retranqueo, riego y modo en un clic
-        </small>
-        <div className="profile-chips">
-          {Object.values(AGRICULTURAL_PROFILES).map(profile => (
-            <button
-              key={profile.id}
-              className={`profile-chip ${activeProfileId === profile.id ? 'active' : ''}`}
-              onClick={() => setConfig(prev => applyProfile(prev, profile.id))}
-              title={profile.description}
-            >
-              {profile.icon} {profile.name}
-            </button>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: profilesExpanded ? '4px' : '0' }}>
+          <h3 style={{ margin: 0, flex: 1 }}>Perfiles rápidos</h3>
+          <button
+            onClick={() => setProfilesExpanded(!profilesExpanded)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '18px',
+              padding: '4px 8px',
+              color: '#2d5016',
+              fontWeight: 'bold',
+            }}
+            title={profilesExpanded ? 'Colapsar' : 'Expandir'}
+          >
+            {profilesExpanded ? '▼' : '▶'}
+          </button>
         </div>
+
+        {!profilesExpanded && (
+          <p className="section-summary">
+            {activeProfileId
+              ? `Perfil activo: ${AGRICULTURAL_PROFILES[activeProfileId].icon} ${AGRICULTURAL_PROFILES[activeProfileId].name}`
+              : 'Configuración personalizada'}
+          </p>
+        )}
+
+        {profilesExpanded && (
+          <>
+            <small style={{ fontSize: '11px', color: '#999', marginBottom: '10px', display: 'block' }}>
+              Aplica marco, retranqueo, riego y modo en un clic
+            </small>
+            <div className="profile-chips">
+              {Object.values(AGRICULTURAL_PROFILES).map(profile => (
+                <button
+                  key={profile.id}
+                  className={`profile-chip ${activeProfileId === profile.id ? 'active' : ''}`}
+                  onClick={() => setConfig(prev => applyProfile(prev, profile.id))}
+                  title={profile.description}
+                >
+                  {profile.icon} {profile.name}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </section>
 
       {/* SECTION 1: Tipo de Riego y Márgenes */}

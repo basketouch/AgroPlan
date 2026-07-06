@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Sky } from '@react-three/drei'
 import * as THREE from 'three'
 import { projectScene } from '../utils/geometry3d'
-import { getCropColor, getCropMetadata } from '../config'
+import { getCropColor, getCropMetadata, OBSTACLE_TYPES } from '../config'
 import './View3D.css'
 
 /**
@@ -72,6 +72,83 @@ function CropInstances({ positions, color }) {
 }
 
 /**
+ * Elemento del terreno más cercano a las plantas: caseta, árbol, camino,
+ * zona rocosa, línea eléctrica o balsa. Cada tipo tiene una forma simple
+ * a escala real (metros) según su radio de exclusión.
+ */
+function ObstacleMesh({ position, type, radiusMeters }) {
+  const [x, z] = position
+  const color = OBSTACLE_TYPES[type]?.color || '#999'
+  const scale = Math.max(0.6, Math.min(2.5, (radiusMeters || 500) / 800))
+
+  switch (type) {
+    case 'caseta':
+      return (
+        <group position={[x, 0, z]}>
+          <mesh position={[0, 1.2, 0]} castShadow>
+            <boxGeometry args={[2.5 * scale, 2.4, 2.5 * scale]} />
+            <meshStandardMaterial color="#d9c9a3" />
+          </mesh>
+          <mesh position={[0, 2.7, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+            <coneGeometry args={[2 * scale, 1.2, 4]} />
+            <meshStandardMaterial color={color} />
+          </mesh>
+        </group>
+      )
+    case 'arbol':
+      return (
+        <group position={[x, 0, z]}>
+          <mesh position={[0, 0.9, 0]} castShadow>
+            <cylinderGeometry args={[0.15, 0.2, 1.8, 8]} />
+            <meshStandardMaterial color="#6d4c33" />
+          </mesh>
+          <mesh position={[0, 2.1, 0]} castShadow>
+            <sphereGeometry args={[1.1 * scale, 12, 12]} />
+            <meshStandardMaterial color={color} />
+          </mesh>
+        </group>
+      )
+    case 'rocosa':
+      return (
+        <group position={[x, 0.3, z]}>
+          <mesh castShadow>
+            <dodecahedronGeometry args={[1.4 * scale, 0]} />
+            <meshStandardMaterial color={color} roughness={1} flatShading />
+          </mesh>
+        </group>
+      )
+    case 'electrica':
+      return (
+        <group position={[x, 0, z]}>
+          <mesh position={[0, 3, 0]} castShadow>
+            <cylinderGeometry args={[0.12, 0.12, 6, 8]} />
+            <meshStandardMaterial color="#666" />
+          </mesh>
+          <mesh position={[0, 5.8, 0]} castShadow>
+            <boxGeometry args={[2.4, 0.12, 0.12]} />
+            <meshStandardMaterial color="#666" />
+          </mesh>
+        </group>
+      )
+    case 'balsa':
+      return (
+        <mesh position={[x, 0.15, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[1.6 * scale, 24]} />
+          <meshStandardMaterial color={color} transparent opacity={0.75} />
+        </mesh>
+      )
+    case 'camino':
+    default:
+      return (
+        <mesh position={[x, 0.02, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[3 * scale, 3 * scale]} />
+          <meshStandardMaterial color={color || '#c2a878'} />
+        </mesh>
+      )
+  }
+}
+
+/**
  * Red de riego: líneas desde el pozo a cada planta
  */
 function IrrigationLines({ pozoXZ, plants }) {
@@ -94,7 +171,7 @@ function IrrigationLines({ pozoXZ, plants }) {
   )
 }
 
-function Scene({ parcelaXZ, pozoXZ, plants, radius }) {
+function Scene({ parcelaXZ, pozoXZ, plants, obstaclesXZ, radius }) {
   // Agrupar plantas por cultivo para instanciar por color
   const byCrop = useMemo(() => {
     const groups = {}
@@ -127,6 +204,10 @@ function Scene({ parcelaXZ, pozoXZ, plants, radius }) {
         <IrrigationLines pozoXZ={pozoXZ} plants={plants} />
       )}
 
+      {obstaclesXZ.map((o, i) => (
+        <ObstacleMesh key={i} position={o.position} type={o.type} radiusMeters={o.radiusMeters} />
+      ))}
+
       {Object.entries(byCrop).map(([cultivo, positions]) => (
         <CropInstances key={cultivo} positions={positions} color={getCropColor(cultivo)} />
       ))}
@@ -145,15 +226,20 @@ function Scene({ parcelaXZ, pozoXZ, plants, radius }) {
  * Vista 3D de la parcela: overlay a pantalla completa sobre el mapa.
  * Muestra parcela extruida, pozo, red de riego y plantas por cultivo.
  */
-export default function View3D({ parcela, pozo, grid, onClose }) {
+export default function View3D({ parcela, pozo, grid, obstacles, onClose }) {
   const scene = useMemo(
-    () => projectScene(parcela, pozo, grid),
-    [parcela, pozo, grid]
+    () => projectScene(parcela, pozo, grid, obstacles),
+    [parcela, pozo, grid, obstacles]
   )
 
   const cultivosPresentes = useMemo(
     () => [...new Set(scene.plants.map(p => p.cultivo))],
     [scene.plants]
+  )
+
+  const tiposObstaculoPresentes = useMemo(
+    () => [...new Set(scene.obstaclesXZ.map(o => o.type))],
+    [scene.obstaclesXZ]
   )
 
   return (
@@ -175,7 +261,7 @@ export default function View3D({ parcela, pozo, grid, onClose }) {
         </button>
       </div>
 
-      {cultivosPresentes.length > 0 && (
+      {(cultivosPresentes.length > 0 || tiposObstaculoPresentes.length > 0) && (
         <div className="view3d-legend">
           {cultivosPresentes.map(cultivo => (
             <div key={cultivo} className="view3d-legend-item">
@@ -184,6 +270,18 @@ export default function View3D({ parcela, pozo, grid, onClose }) {
                 style={{ background: getCropColor(cultivo) }}
               />
               {getCropMetadata(cultivo).emoji} {getCropMetadata(cultivo).name}
+            </div>
+          ))}
+          {tiposObstaculoPresentes.length > 0 && cultivosPresentes.length > 0 && (
+            <div className="view3d-legend-divider" />
+          )}
+          {tiposObstaculoPresentes.map(type => (
+            <div key={type} className="view3d-legend-item">
+              <span
+                className="view3d-legend-color"
+                style={{ background: OBSTACLE_TYPES[type]?.color || '#999' }}
+              />
+              {OBSTACLE_TYPES[type]?.icon} {OBSTACLE_TYPES[type]?.label || type}
             </div>
           ))}
         </div>

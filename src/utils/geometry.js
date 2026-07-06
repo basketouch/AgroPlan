@@ -78,8 +78,8 @@ function generatePlantingGridWithOrientation(parcelaCoords, pozoCord, config, or
       return rotatePoint(point, center, rotationOffset)
     })
 
-    // Rotate the well position around the parcela center
-    const rotatedPozo = rotatePoint(pozoCord, center, rotationOffset)
+    // Rotate the well position around the parcela center (si hay pozo)
+    const rotatedPozo = pozoCord ? rotatePoint(pozoCord, center, rotationOffset) : null
 
     // Generate the grid with rotated coordinates
     const result = generatePlantingGridBase(rotatedParcelaCoords, rotatedPozo, config)
@@ -135,12 +135,9 @@ function calculateCellSizeFromQuantity(parcelaArea, cantidadDeseada) {
 
 function generatePlantingGridBase(parcelaCoords, pozoCord, config) {
   try {
-    // 1. Validar entrada
+    // 1. Validar entrada (el pozo es opcional: extensivos no lo necesitan)
     if (!parcelaCoords || parcelaCoords.length < 3) {
       throw new Error('Parcela debe tener al menos 3 puntos')
-    }
-    if (!pozoCord || pozoCord.length !== 2) {
-      throw new Error('Pozo debe tener coordenadas válidas')
     }
 
     // 2. Crear polígono principal
@@ -158,11 +155,10 @@ function generatePlantingGridBase(parcelaCoords, pozoCord, config) {
       bufferedParcela = parcelaPolygon
     }
 
-    // 4. Crear zona de exclusión del pozo (radio 5 metros)
-    const pozoPoint = turf.point(pozoCord)
-    const pozoBuffer = turf.buffer(pozoPoint, 5 / 1000, {
-      units: 'kilometers'
-    })
+    // 4. Crear zona de exclusión del pozo (radio 5 metros) si hay pozo
+    const pozoBuffer = pozoCord
+      ? turf.buffer(turf.point(pozoCord), 5 / 1000, { units: 'kilometers' })
+      : null
 
     // 5. Generar grid (retícula)
     const bbox = turf.bbox(bufferedParcela)
@@ -200,7 +196,7 @@ function generatePlantingGridBase(parcelaCoords, pozoCord, config) {
     const validPoints = grid.features.filter(point => {
       try {
         const insideParcela = turf.booleanPointInPolygon(point, bufferedParcela)
-        const insidePozo = turf.booleanPointInPolygon(point, pozoBuffer)
+        const insidePozo = pozoBuffer ? turf.booleanPointInPolygon(point, pozoBuffer) : false
         return insideParcela && !insidePozo
       } catch (e) {
         return false
@@ -254,7 +250,8 @@ function generatePlantingGridBase(parcelaCoords, pozoCord, config) {
  * Estimación de longitud de tubería basada en las filas del grid
  */
 function estimatePipelineLength(points, pozoCord, config) {
-  if (points.length === 0) return 0
+  // Sin pozo no hay red de riego que estimar (cultivos extensivos de secano)
+  if (points.length === 0 || !pozoCord) return 0
 
   try {
     // Agrupar puntos por fila (latitud similar, convertir cm a metros a grados)
@@ -553,134 +550,70 @@ export const cropCompatibility = {
  * - Distribución proporcional según cantidades solicitadas
  */
 function asignarCultivosMultiples(points, pozoCord, config) {
-  const pozoPoint = turf.point(pozoCord)
+  const pozoPoint = pozoCord ? turf.point(pozoCord) : null
   const ranges = getZoneRanges(config.tipoRiego)
   const cultivos = config.cultivosSeleccionados || [config.cultivoSeleccionado || 'tomate']
   const cantidades = config.cantidadesCultivos || {}
 
   // Calcular total de plantas solicitadas
   const totalSolicitado = cultivos.reduce((sum, c) => sum + (cantidades[c] || 0), 0)
-  const totalDisponible = points.length
 
   // Si no hay cantidades especificadas, usar distribución por zonas (backward compatibility)
   if (totalSolicitado === 0) {
     return asignarCultivosMultiplesLegacy(points, pozoCord, cultivos, ranges, pozoPoint)
   }
 
-  // Calcular distancia y zona de cada punto
+  // Calcular distancia y zona de cada punto (sin pozo: distancia 0, zona única)
   const pointsConZona = points.map((point, idx) => {
-    const distanciaMetros = turf.distance(pozoPoint, point, { units: 'kilometers' }) * 1000
+    const distanciaMetros = pozoPoint
+      ? turf.distance(pozoPoint, point, { units: 'kilometers' }) * 1000
+      : 0
     let zonaTipo = 'zona1'
-    if (distanciaMetros <= ranges.zone1) {
-      zonaTipo = 'zona1'
-    } else if (distanciaMetros <= ranges.zone2) {
-      zonaTipo = 'zona2'
-    } else {
+    if (distanciaMetros > ranges.zone2) {
       zonaTipo = 'zona3'
+    } else if (distanciaMetros > ranges.zone1) {
+      zonaTipo = 'zona2'
     }
     return { point, idx, distanciaMetros, zonaTipo }
   })
 
-  // Agrupar puntos por zona
-  const puntosPorZona = {
-    zona1: pointsConZona.filter(p => p.zonaTipo === 'zona1'),
-    zona2: pointsConZona.filter(p => p.zonaTipo === 'zona2'),
-    zona3: pointsConZona.filter(p => p.zonaTipo === 'zona3')
-  }
-
-  // Ordenar cultivos por demanda hídrica (mayor a menor)
+  // Ordenar cultivos por demanda hídrica (mayor a menor):
+  // los más exigentes quedan más cerca del pozo
   const cultivosOrdenados = [...cultivos].sort((a, b) => {
     return (waterDemand[b] || 0) - (waterDemand[a] || 0)
   })
 
-  // Función para verificar si dos cultivos son compatibles
-  const sonCompatibles = (cultivo1, cultivo2) => {
-    if (cultivo1 === cultivo2) return true
-    const compatibilidad = cropCompatibility[cultivo1]?.[cultivo2]
-    return compatibilidad !== -1 // -1 significa incompatible
-  }
+  // 🌊 ASIGNACIÓN EN BLOQUES CONTIGUOS:
+  // Se ordenan los puntos por distancia al pozo (o por orden de fila si no
+  // hay pozo) y se asigna cada cultivo como una franja continua. Así ninguna
+  // planta queda aislada del resto de su cultivo (antes, los sobrantes de
+  // una zona se rellenaban sueltos con el primer cultivo).
+  const ordenados = pozoPoint
+    ? [...pointsConZona].sort((a, b) => a.distanciaMetros - b.distanciaMetros)
+    : pointsConZona // sin pozo: orden fila a fila del grid, también contiguo
 
-  // Función para obtener cultivos incompatibles
-  const getCultivosIncompatibles = (cultivo) => {
-    return Object.keys(cropCompatibility[cultivo] || {}).filter(
-      c => cropCompatibility[cultivo][c] === -1
-    )
-  }
-
-  // Crear mapa de asignaciones
   const asignaciones = {}
-
-  // 🌊 ESTRATEGIA DE DISTRIBUCIÓN POR ZONAS:
-  // Cultivos exigentes (zona1) → Cultivos moderados (zona2) → Cultivos resistentes (zona3)
-
-  let cultivoIdx = 0
-  const cultivosPorZona = { zona1: [], zona2: [], zona3: [] }
-
-  // Función auxiliar para asignar cultivos a una zona
-  // RESPETANDO COMPATIBILIDADES: Evita poner cultivos incompatibles en la misma zona
-  const asignarACultivos = (zonaKey) => {
-    const puntos = puntosPorZona[zonaKey]
-    let posicionEnZona = 0
-
-    while (posicionEnZona < puntos.length && cultivoIdx < cultivosOrdenados.length) {
-      const cultivo = cultivosOrdenados[cultivoIdx]
-      const cantidadSolicitada = cantidades[cultivo] || 0
-      let cantidadAsignada = 0
-
-      // Verificar si este cultivo es incompatible con otros en esta zona
-      const cultivosYaEnZona = cultivosPorZona[zonaKey]
-      const incompatible = cultivosYaEnZona.some(c => !sonCompatibles(cultivo, c))
-
-      // Si hay incompatibilidad, saltar esta zona (guardar para otra zona)
-      if (incompatible) {
-        break
-      }
-
-      // Asignar hasta llenar la cantidad solicitada O la zona
-      for (let i = posicionEnZona; i < puntos.length && cantidadAsignada < cantidadSolicitada; i++) {
-        asignaciones[puntos[i].idx] = cultivo
-        posicionEnZona++
-        cantidadAsignada++
-      }
-
-      // Registrar que este cultivo está en esta zona
-      if (cantidadAsignada > 0) {
-        cultivosPorZona[zonaKey].push(cultivo)
-      }
-
-      // Si se asignaron todas las plantas de este cultivo, pasar al siguiente
-      if (cantidadAsignada === cantidadSolicitada) {
-        cultivoIdx++
-      } else {
-        // Si la zona se acabó pero aún hay cantidad solicitada, pasar a la siguiente zona
-        break
-      }
-    }
-
-    return posicionEnZona
-  }
-
-  // 🌾 ASIGNACIÓN POR ZONAS CON COMPATIBILIDADES:
-  // Zona 1: Cultivos más exigentes (agua)
-  asignarACultivos('zona1')
-  // Zona 2: Cultivos moderados, respetando incompatibilidades
-  asignarACultivos('zona2')
-  // Zona 3: Cultivos resistentes, respetando incompatibilidades
-  asignarACultivos('zona3')
-
-  // Si quedan puntos sin asignar, asignarlos al cultivo más exigente
-  pointsConZona.forEach(p => {
-    if (!asignaciones[p.idx]) {
-      asignaciones[p.idx] = cultivosOrdenados[0] || 'tomate'
+  let cursor = 0
+  cultivosOrdenados.forEach(cultivo => {
+    const cantidadSolicitada = cantidades[cultivo] || 0
+    for (let k = 0; k < cantidadSolicitada && cursor < ordenados.length; k++, cursor++) {
+      asignaciones[ordenados[cursor].idx] = cultivo
     }
   })
+
+  // Puntos sobrantes: extienden la franja del último cultivo (el más
+  // tolerante a sequía), manteniendo la contigüidad
+  const ultimoCultivo = cultivosOrdenados[cultivosOrdenados.length - 1] || 'tomate'
+  for (; cursor < ordenados.length; cursor++) {
+    asignaciones[ordenados[cursor].idx] = ultimoCultivo
+  }
 
   // Mapear resultado final con propiedades
   const pointsConCultivo = pointsConZona.map(p => {
     return {
       ...p.point,
       properties: {
-        cultivo: asignaciones[p.idx] || cultivosOrdenados[0] || 'tomate',
+        cultivo: asignaciones[p.idx] || ultimoCultivo,
         distanciaPozo: Math.round(p.distanciaMetros),
         zonaTipo: p.zonaTipo
       }
@@ -694,6 +627,19 @@ function asignarCultivosMultiples(points, pozoCord, config) {
  * Distribución legacy por zonas (cuando no hay cantidades especificadas)
  */
 function asignarCultivosMultiplesLegacy(points, pozoCord, cultivos, ranges, pozoPoint) {
+  // Sin pozo: repartir cultivos en bloques contiguos de igual tamaño
+  if (!pozoPoint) {
+    const blockSize = Math.ceil(points.length / Math.max(cultivos.length, 1))
+    return points.map((point, idx) => ({
+      ...point,
+      properties: {
+        cultivo: cultivos[Math.min(Math.floor(idx / blockSize), cultivos.length - 1)] || 'tomate',
+        distanciaPozo: 0,
+        zonaTipo: 'zona1'
+      }
+    }))
+  }
+
   return points.map(point => {
     const distanciaMetros = turf.distance(pozoPoint, point, { units: 'kilometers' }) * 1000
 
@@ -852,8 +798,9 @@ function generateTresbolilloGrid(parcelaCoords, pozoCord, config) {
       bufferedParcela = parcelaPolygon
     }
 
-    const pozoPoint = turf.point(pozoCord)
-    const pozoBuffer = turf.buffer(pozoPoint, 5 / 1000, { units: 'kilometers' })
+    const pozoBuffer = pozoCord
+      ? turf.buffer(turf.point(pozoCord), 5 / 1000, { units: 'kilometers' })
+      : null
 
     const bbox = turf.bbox(bufferedParcela)
     const cellSizeKm = Math.min(config.marcoHorizontal, config.marcoVertical) / 100 / 1000
@@ -876,7 +823,7 @@ function generateTresbolilloGrid(parcelaCoords, pozoCord, config) {
 
         try {
           const insideParcela = turf.booleanPointInPolygon(point, bufferedParcela)
-          const insidePozo = turf.booleanPointInPolygon(point, pozoBuffer)
+          const insidePozo = pozoBuffer ? turf.booleanPointInPolygon(point, pozoBuffer) : false
 
           if (insideParcela && !insidePozo) {
             points.push(point)

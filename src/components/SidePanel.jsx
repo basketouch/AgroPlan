@@ -220,10 +220,10 @@ export default function SidePanel({
           <div className="resultado-tab">
             <section className="actions-section">
               <button
-                className={`btn-primary ${!parcela || !pozo ? 'disabled' : ''}`}
-                disabled={!parcela || !pozo}
+                className={`btn-primary ${!parcela ? 'disabled' : ''}`}
+                disabled={!parcela}
                 onClick={onGenerateLayout}
-                title={!parcela || !pozo ? 'Dibuja parcela y marca pozo primero' : 'Recalcular el layout con la configuración actual'}
+                title={!parcela ? 'Dibuja la parcela primero' : 'Recalcular el layout con la configuración actual (el pozo es opcional)'}
               >
                 {grid.length > 0 ? '🔄 Regenerar Layout' : '✨ Generar Layout'}
               </button>

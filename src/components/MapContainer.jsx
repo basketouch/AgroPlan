@@ -773,20 +773,22 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
     }
   }, [polygonPoints, drawingMode])
 
-  // Renderizar puntos del grid
+  // Renderizar puntos del grid (arrastrables: permite ajustar manualmente
+  // la posición de una planta sin esperar a que el algoritmo regenere todo)
   useEffect(() => {
     if (!map || !grid || grid.length === 0) return
 
     gridMarkers.forEach(marker => marker.setMap(null))
 
-    const newMarkers = grid.map(point => {
+    const newMarkers = grid.map((point, idx) => {
       const [lng, lat] = point.geometry.coordinates
       const cultivo = point.properties?.cultivo || 'tomate'
       const color = getCropColor(cultivo)
       const marker = new window.google.maps.Marker({
         position: { lat, lng },
         map: map,
-        title: cultivo.charAt(0).toUpperCase() + cultivo.slice(1),
+        title: `${cultivo.charAt(0).toUpperCase() + cultivo.slice(1)} (arrastra para reposicionar)`,
+        draggable: true,
         icon: {
           path: window.google.maps.SymbolPath.CIRCLE,
           scale: 4,
@@ -796,6 +798,20 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
           strokeWeight: 1,
         },
       })
+
+      marker.addListener('dragend', (event) => {
+        const newCoords = [event.latLng.lng(), event.latLng.lat()]
+        setGrid(prevGrid => {
+          const updated = [...prevGrid]
+          updated[idx] = {
+            ...updated[idx],
+            geometry: { ...updated[idx].geometry, coordinates: newCoords },
+            properties: { ...updated[idx].properties, movidaManualmente: true },
+          }
+          return updated
+        })
+      })
+
       return marker
     })
 
@@ -803,8 +819,9 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
   }, [grid, map])
 
   // Regenerar grid cuando cambian parcela/pozo/config/orientationAngle/obstacles (debounced para performance)
+  // El pozo es opcional: los extensivos de secano no lo necesitan
   useEffect(() => {
-    if (parcela && pozo && debouncedConfig && map) {
+    if (parcela && debouncedConfig && map) {
       setIsRegeneratingGrid(true)
       try {
         const configWithOrientation = {
@@ -1015,20 +1032,21 @@ export default function MapContainer({ parcela, setParcela, pozo, setPozo, grid,
         onClose={() => setContextMenu({ ...contextMenu, isOpen: false })}
       />
 
-      {/* Toggle Vista 3D - disponible cuando hay parcela y pozo */}
-      {parcela && pozo && !view3DMode && (
+      {/* Toggle Vista 3D - disponible cuando hay parcela (el pozo es opcional) */}
+      {parcela && !view3DMode && (
         <button className="view3d-toggle-btn" onClick={() => setView3DMode(true)}>
           🌍 Vista 3D
         </button>
       )}
 
       {/* Vista 3D - overlay a pantalla completa sobre el mapa */}
-      {view3DMode && parcela && pozo && (
+      {view3DMode && parcela && (
         <Suspense fallback={<div className="view3d-loading">Cargando vista 3D…</div>}>
           <View3D
             parcela={parcela}
             pozo={pozo}
             grid={grid}
+            obstacles={obstacles}
             onClose={() => setView3DMode(false)}
           />
         </Suspense>

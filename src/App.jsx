@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useGoogleMaps } from './hooks/useGoogleMaps'
 import MapContainer from './components/MapContainer'
 import SidePanel from './components/SidePanel'
@@ -10,7 +10,8 @@ export default function App() {
   // Cargar Google Maps API
   useGoogleMaps()
 
-  // Múltiples parcelas - el usuario puede crear varias
+  // Múltiples parcelas - cada una con su propia configuración de plantación
+  // Estructura: [{ coords, config }]
   const [parcelas, setParcelas] = useState([])
   const [selectedParcelaIndex, setSelectedParcelaIndex] = useState(null)
   // Sin selección explícita, la parcela activa es la última creada
@@ -18,10 +19,15 @@ export default function App() {
   const activeParcelaIndex = selectedParcelaIndex !== null
     ? selectedParcelaIndex
     : (parcelas.length > 0 ? parcelas.length - 1 : null)
-  const parcela = activeParcelaIndex !== null && parcelas[activeParcelaIndex] ? parcelas[activeParcelaIndex] : null
+  const parcela = activeParcelaIndex !== null && parcelas[activeParcelaIndex]
+    ? parcelas[activeParcelaIndex].coords
+    : null
 
-  const setParcela = (newParcela) => {
-    if (newParcela === null) {
+  const [pozo, setPozo] = useState(null)
+  const [config, setConfig] = useState(DEFAULT_AGRICULTURAL_CONFIG)
+
+  const setParcela = (newCoords) => {
+    if (newCoords === null) {
       // Eliminar la parcela activa
       if (activeParcelaIndex !== null) {
         const updated = parcelas.filter((_, i) => i !== activeParcelaIndex)
@@ -29,16 +35,30 @@ export default function App() {
         setSelectedParcelaIndex(null)
       }
     } else {
-      // Siempre crear una nueva parcela (para permitir múltiples)
-      // después de terminar una, el índice se resetea para que la próxima sea nueva
-      const updated = [...parcelas, newParcela]
+      // Nueva parcela: guarda un snapshot de la config actual como suya
+      const updated = [...parcelas, { coords: newCoords, config }]
       setParcelas(updated)
       setSelectedParcelaIndex(null) // Reset para permitir la próxima parcela nueva
     }
   }
 
-  const [pozo, setPozo] = useState(null)
-  const [config, setConfig] = useState(DEFAULT_AGRICULTURAL_CONFIG)
+  // Al cambiar de parcela se carga SU configuración (cada parcela mantiene la suya)
+  const handleSelectParcela = (idx) => {
+    setSelectedParcelaIndex(idx)
+    if (parcelas[idx]?.config) {
+      setConfig(parcelas[idx].config)
+    }
+  }
+
+  // Cualquier cambio de config se persiste en la parcela activa
+  useEffect(() => {
+    if (activeParcelaIndex === null) return
+    setParcelas(prev => {
+      const entry = prev[activeParcelaIndex]
+      if (!entry || entry.config === config) return prev
+      return prev.map((p, i) => (i === activeParcelaIndex ? { ...p, config } : p))
+    })
+  }, [config, activeParcelaIndex])
   const [grid, setGrid] = useState([])
   const [metricas, setMetricas] = useState(null)
   const [panelVisible, setPanelVisible] = useState(true)
@@ -103,7 +123,7 @@ export default function App() {
             setDisplayUnit={setDisplayUnit}
             parcelas={parcelas}
             selectedParcelaIndex={activeParcelaIndex}
-            onSelectParcela={setSelectedParcelaIndex}
+            onSelectParcela={handleSelectParcela}
             onSearchLocation={setSearchLocation}
             parcelaTabSlotRef={parcelaTabSlotRef}
             preferences={preferences}
